@@ -1,42 +1,230 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
+:root {
+  --primary-color: #4a90e2;
+  --accent-color: #a259ff;
+  --highlight-color: #ffb347;
+  --secondary-accent: #ff6ec7;
+  --bg-color: #f8f9fc;
+  --sidebar-bg: #f5f1ff;
+  --text-color: #333;
+}
+
+body, html, #root {
+  margin: 0;
+  height: 100%;
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.app-wrapper {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  background: var(--sidebar-bg);
+  padding: 2rem 1.5rem;
+  border-right: 2px solid #e2e2e2;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar h2 {
+  margin-bottom: 1.5rem;
+  color: var(--accent-color);
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.6rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: all 0.2s ease;
+}
+
+.sidebar li:hover {
+  background: rgba(162, 89, 255, 0.1);
+}
+
+.sidebar li.active {
+  background: var(--accent-color);
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.main-content {
+  flex: 1;
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-bottom: 1.8rem;
+  width: 100%;
+  max-width: 1000px;
+}
+
+header h1 {
+  margin: 0;
+  color: var(--primary-color);
+  font-size: 1.8rem;
+}
+
+header input {
+  padding: 0.7rem 1rem;
+  border: 2px solid var(--primary-color);
+  border-radius: 12px;
+  outline: none;
+  width: 220px;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+header input:focus {
+  border-color: var(--secondary-accent);
+  box-shadow: 0 0 6px rgba(255, 110, 199, 0.3);
+}
+
+.note-input-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.note-input {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  width: 120%;
+  max-width: 1200px;
+}
+
+.note-input textarea {
+  flex-grow: 1;
+  width: 100%;
+  min-width: 0;
+  min-height: 140px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid #f7b7c2;
+  font-size: 16px;
+  resize: both;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.note-input textarea:focus {
+  border-color: var(--secondary-accent);
+  box-shadow: 0 0 6px rgba(255, 110, 199, 0.25);
+}
+
+.note-input button {
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  color: white;
+  border: none;
+  padding: 0.7rem 1.3rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  height: fit-content;
+  margin-top: 0.3rem;
+}
+
+.note-input button:hover {
+  transform: scale(1.05);
+  opacity: 0.95;
+}
+
+.note-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.note-card {
+  background: white;
+  border-radius: 14px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-left: 6px solid var(--accent-color);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.note-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.note-card p {
+  margin: 0 0 0.4rem;
+  line-height: 1.4;
+}
+
+.timestamp {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.note-card::before {
+  content: attr(data-folder);
+  position: absolute;
+  top: -10px;
+  left: 12px;
+  background: var(--highlight-color);
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+.note-card button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: transform 0.2s ease;
+  color: var(--accent-color);
+}
+
+.note-card button:hover {
+  transform: scale(1.2);
+  color: crimson;
+}
+
+/* Empty message */
+.empty {
   text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+  color: #999;
+  font-style: italic;
+  margin-top: 2rem;
 }
