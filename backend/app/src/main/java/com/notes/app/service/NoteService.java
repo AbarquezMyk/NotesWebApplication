@@ -33,5 +33,24 @@ public class NoteService {
         Optional<Note> opt = noteRepository.findById(id);
         return opt.orElse(null); 
     }
+
+    // UPDATE
+    public Note updateNote(Long id, Note updates) {
+        Optional<Note> existingOpt = noteRepository.findById(id);
+        if (existingOpt.isEmpty()) {
+            throw new IllegalArgumentException("Note with id " + id + " not found");
+        }
+
+        Note existing = existingOpt.get();
+
+        if (updates.getText() != null) {
+            existing.setText(updates.getText());
+        }
+        if (updates.getFolder() != null) {
+            existing.setFolder(updates.getFolder());
+        }
+
+        return noteRepository.save(existing);
+    }
 }
 
