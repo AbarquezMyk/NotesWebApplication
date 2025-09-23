@@ -6,34 +6,11 @@ import NoteInput from "./components/NoteInput";
 import NoteList from "./components/NoteList";
 
 function App() {
-  const [notes, setNotes] = useState([]);
-  const [input, setInput] = useState("");
   const [search, setSearch] = useState("");
   const [activeFolder, setActiveFolder] = useState("All Notes");
+  const [refresh, setRefresh] = useState(0); // 👈 added
 
   const folders = ["All Notes", "School", "Personal", "Ideas"];
-
-  const addNote = () => {
-    if (input.trim()) {
-      const newNote = {
-        text: input,
-        folder: activeFolder,
-        timestamp: new Date().toLocaleString(),
-      };
-      setNotes([newNote, ...notes]);
-      setInput("");
-    }
-  };
-
-  const deleteNote = (index) => {
-    setNotes(notes.filter((_, i) => i !== index));
-  };
-
-  const filteredNotes = notes.filter(
-    (note) =>
-      (activeFolder === "All Notes" || note.folder === activeFolder) &&
-      note.text.toLowerCase().includes(search.toLowerCase())
-  );
 
   return (
     <div className="app-wrapper">
@@ -44,9 +21,14 @@ function App() {
       />
 
       <main className="main-content">
-        <Header activeFolder={activeFolder} search={search} setSearch={setSearch} />
-        <NoteInput input={input} setInput={setInput} addNote={addNote} />
-        <NoteList notes={filteredNotes} deleteNote={deleteNote} />
+        <Header
+          activeFolder={activeFolder}
+          search={search}
+          setSearch={setSearch}
+        />
+        {/* 👇 pass setRefresh to NoteInput */}
+        <NoteInput activeFolder={activeFolder} onNoteAdded={() => setRefresh(r => r + 1)} />
+        <NoteList activeFolder={activeFolder} search={search} refresh={refresh} />
       </main>
     </div>
   );

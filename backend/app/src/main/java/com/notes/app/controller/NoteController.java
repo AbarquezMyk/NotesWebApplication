@@ -26,19 +26,19 @@ public class NoteController {
     }
 
     // CREATE
-    @PostMapping
+    @PostMapping("/create")
     public Note create(@RequestBody Note note) {
         return noteService.createNote(note);
     }
       // READ ALL
-    @GetMapping
+    @GetMapping("/read")
     public ResponseEntity<List<Note>> getAllNotes() {
         List<Note> notes = noteService.getAllNotes();
         return ResponseEntity.ok(notes);
     }
 
     // READ ONE
-    @GetMapping("/{id}")
+    @GetMapping("/read/{id}")
     public ResponseEntity<Note> getNoteById(@PathVariable Long id) {
         Note note = noteService.getNoteById(id);
         if (note == null) {
