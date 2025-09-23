@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
-import './App.css';
+import React, { useState } from "react";
+import "./App.css";
+import Sidebar from "./components/Sidebar";
+import Header from "./components/Header";
+import NoteInput from "./components/NoteInput";
+import NoteList from "./components/NoteList";
 
 function App() {
   const [notes, setNotes] = useState([]);
-  const [input, setInput] = useState('');
-  const [search, setSearch] = useState('');
-  const [activeFolder, setActiveFolder] = useState('All Notes');
+  const [input, setInput] = useState("");
+  const [search, setSearch] = useState("");
+  const [activeFolder, setActiveFolder] = useState("All Notes");
 
-  const folders = ['All Notes', 'School', 'Personal', 'Ideas'];
+  const folders = ["All Notes", "School", "Personal", "Ideas"];
 
   const addNote = () => {
     if (input.trim()) {
@@ -17,7 +21,7 @@ function App() {
         timestamp: new Date().toLocaleString(),
       };
       setNotes([newNote, ...notes]);
-      setInput('');
+      setInput("");
     }
   };
 
@@ -27,64 +31,22 @@ function App() {
 
   const filteredNotes = notes.filter(
     (note) =>
-      (activeFolder === 'All Notes' || note.folder === activeFolder) &&
+      (activeFolder === "All Notes" || note.folder === activeFolder) &&
       note.text.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="app-wrapper">
-      <aside className="sidebar">
-        <h2>Folders</h2>
-        <ul>
-          {folders.map((folder) => (
-            <li
-              key={folder}
-              className={folder === activeFolder ? 'active' : ''}
-              onClick={() => setActiveFolder(folder)}
-            >
-              {folder}
-            </li>
-          ))}
-        </ul>
-      </aside>
+      <Sidebar
+        folders={folders}
+        activeFolder={activeFolder}
+        setActiveFolder={setActiveFolder}
+      />
 
       <main className="main-content">
-        <header>
-          <h1>{activeFolder}</h1>
-          <input
-            type="text"
-            placeholder="Search notes..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </header>
-
-        <section className="note-input-wrapper">
-          <div className="note-input">
-            <textarea
-              placeholder="Start typing your note..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-            />
-            <button onClick={addNote}>+ Add</button>
-          </div>
-        </section>
-
-        <section className="note-list">
-          {filteredNotes.length === 0 ? (
-            <p className="empty">No notes found.</p>
-          ) : (
-            filteredNotes.map((note, index) => (
-              <div className="note-card" key={index} data-folder={note.folder}>
-                <div>
-                  <p>{note.text}</p>
-                  <span className="timestamp">{note.timestamp}</span>
-                </div>
-                <button onClick={() => deleteNote(index)}>🗑</button>
-              </div>
-            ))
-          )}
-        </section>
+        <Header activeFolder={activeFolder} search={search} setSearch={setSearch} />
+        <NoteInput input={input} setInput={setInput} addNote={addNote} />
+        <NoteList notes={filteredNotes} deleteNote={deleteNote} />
       </main>
     </div>
   );
