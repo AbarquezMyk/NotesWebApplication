@@ -21,6 +21,7 @@ body, html, #root {
   height: 100vh;
 }
 
+/* Sidebar */
 .sidebar {
   width: 240px;
   background: var(--sidebar-bg);
@@ -66,15 +67,19 @@ body, html, #root {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
+/* Main content */
 .main-content {
   flex: 1;
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  overflow-x: hidden;
+  align-items: stretch;
+  overflow-y: auto; /* allow vertical scroll */
+  position: relative; /* needed for sticky child */
 }
 
+
+/* Header */
 header {
   display: flex;
   align-items: center;
@@ -104,32 +109,44 @@ header input:focus {
   box-shadow: 0 0 6px rgba(255, 110, 199, 0.3);
 }
 
-.note-input-wrapper {
-  width: 100%;
-  display: flex;
-  justify-content: center;
+/* Note input */
+.note-input-wrapper.sticky {
+  position: sticky;
+  top: 0;
+  z-index: 20; /* higher than note cards */
+  background-color: var(--bg-color);
+  padding: 1rem 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); /* subtle divider */
 }
+
+.note-input-wrapper.sticky::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 12px;
+  background: linear-gradient(to bottom, rgba(248, 249, 252, 0.8), transparent);
+}
+
 
 .note-input {
   display: flex;
   gap: 1rem;
   align-items: flex-start;
-  width: 120%;
-  max-width: 1200px;
+  justify-content: flex-start;  /* align all inputs to left */
+  width: 600px;                 /* fixed width for all folders */
 }
 
 .note-input textarea {
-  flex-grow: 1;
-  width: 100%;
-  min-width: 0;
-  min-height: 140px;
+  width: 100%;          /* fills the NoteInput container */
+  min-width: 400px;     /* ensures uniform size */
+  min-height: 120px;    /* fixed height for all folders */
   padding: 14px 16px;
   border-radius: 12px;
   border: 2px solid #f7b7c2;
   font-size: 16px;
-  resize: both;
-  outline: none;
-  transition: all 0.3s ease;
+  resize: none;         /* prevent resizing */
 }
 
 .note-input textarea:focus {
@@ -143,77 +160,97 @@ header input:focus {
   color: white;
   border: none;
   padding: 0.7rem 1.3rem;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-  height: fit-content;
-  margin-top: 0.3rem;
+  height: 50px;       /* uniform height */
+  align-self: flex-end; /* align button to textarea bottom */
 }
 
-.note-input button:hover {
-  transform: scale(1.05);
-  opacity: 0.95;
-}
-
+/* Note list */
 .note-list {
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 0.5rem;
-  width: 100%;
-  max-width: 1000px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;       /* allow cards to wrap to next row */
+  gap: 1rem;             /* spacing between cards */
+  overflow-x: hidden;    /* remove horizontal scroll */
+  padding-bottom: 1rem;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
+
+/* Note card design only */
 .note-card {
-  background: white;
+  width: 240px;           /* smaller width */
+  height: 160px;          /* smaller height */
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  scroll-snap-align: start;
+
+  background-color: #f3e8ff; /* softer pastel */
   border-radius: 14px;
   padding: 1rem;
-  margin-bottom: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  border-left: 6px solid var(--accent-color);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   position: relative;
+  overflow: hidden;
 }
 
 .note-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
 }
 
-.note-card p {
-  margin: 0 0 0.4rem;
-  line-height: 1.4;
+
+.note-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
 }
 
-.timestamp {
-  font-size: 0.8rem;
-  color: #777;
-}
-
-.note-card::before {
-  content: attr(data-folder);
-  position: absolute;
-  top: -10px;
-  left: 12px;
-  background: var(--highlight-color);
-  color: white;
-  padding: 0.2rem 0.6rem;
+.note-folder {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 0.3rem 0.8rem;
   border-radius: 8px;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: bold;
+  color: white;
+  margin-bottom: 0.4rem;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
+
+/* Folder colors */
+.folder-school { background-color: #6c5ce7; }
+.folder-personal { background-color: #fd79a8; }
+.folder-ideas { background-color: #00b894; }
+.folder-allnotes { background-color: var(--highlight-color); }
+
+/* Note actions (edit/delete) */
+.note-actions {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  display: flex;
+  flex-direction: row;
+  gap: 0.1rem; 
+}
+
 
 .note-card button {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.2rem;
-  transition: transform 0.2s ease;
+  font-size: 1.1rem;
   color: var(--accent-color);
+  transition: transform 0.2s ease, color 0.2s ease;
+  
 }
 
 .note-card button:hover {
@@ -221,10 +258,23 @@ header input:focus {
   color: crimson;
 }
 
-/* Empty message */
+
+.note-card textarea {
+  width: 100%;
+  min-height: 80px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  padding: 8px;
+  resize: vertical;
+  font-size: 0.95rem;
+  background: #fafafa;
+}
+
+/* Empty state */
 .empty {
   text-align: center;
   color: #999;
   font-style: italic;
   margin-top: 2rem;
 }
+

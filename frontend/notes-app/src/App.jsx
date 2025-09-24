@@ -8,7 +8,7 @@ import NoteList from "./components/NoteList";
 function App() {
   const [search, setSearch] = useState("");
   const [activeFolder, setActiveFolder] = useState("All Notes");
-  const [refresh, setRefresh] = useState(0); // 👈 added
+  const [refresh, setRefresh] = useState(0);
 
   const folders = ["All Notes", "School", "Personal", "Ideas"];
 
@@ -26,9 +26,22 @@ function App() {
           search={search}
           setSearch={setSearch}
         />
-        {/* 👇 pass setRefresh to NoteInput */}
-        <NoteInput activeFolder={activeFolder} onNoteAdded={() => setRefresh(r => r + 1)} />
-        <NoteList activeFolder={activeFolder} search={search} refresh={refresh} />
+
+        {/* Sticky NoteInput for folders other than All Notes */}
+        {activeFolder !== "All Notes" && (
+          <div className="note-input-wrapper sticky">
+            <NoteInput
+              activeFolder={activeFolder}
+              onNoteAdded={() => setRefresh(r => r + 1)}
+            />
+          </div>
+        )}
+
+        <NoteList
+          activeFolder={activeFolder}
+          search={search}
+          refresh={refresh}
+        />
       </main>
     </div>
   );
