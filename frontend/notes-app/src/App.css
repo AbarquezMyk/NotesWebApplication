@@ -278,3 +278,92 @@ header input:focus {
   margin-top: 2rem;
 }
 
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff0f6; /* pinkish background */
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.modal button {
+  margin: 5px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.modal .confirm {
+  background-color: #ff6ec7;
+  color: white;
+}
+
+.modal .cancel {
+  background-color: #ddd;
+}
+
+.note-edit-textarea {
+  width: 100%;
+  min-height: 60px;
+  font-size: 0.85rem;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #fff8fc;
+  resize: vertical;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  transition: box-shadow 0.2s ease;
+}
+
+.note-edit-textarea:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 6px rgba(162, 89, 255, 0.3);
+}
+
+/* Editing buttons */
+.edit-buttons {
+  display: flex;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+  justify-content: flex-end;
+}
+
+.edit-buttons button {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.edit-buttons button:hover {
+  transform: scale(1.05);
+}
+
+.edit-buttons button:first-child {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.edit-buttons button:last-child {
+  background-color: #ddd;
+  color: #333;
+}
+
+
