@@ -8,6 +8,13 @@ function generateEntropy() {
   return array;
 }
 
+export function generateSimpleWallet() {
+  const walletAddress = "wallet_" + Math.random().toString(36).substring(2);
+  const walletPrivateKey = "priv_" + crypto.randomUUID();
+
+  return { walletAddress, walletPrivateKey };
+}
+
 export async function generateNoteWallet() {
   // 1. Entropy → mnemonic
   const entropy = generateEntropy();

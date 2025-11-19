@@ -138,41 +138,50 @@ function Notes({ search, setSearch }) {
   );
 
   // ADD NOTE
-  const handleAddNote = async () => {
-    if (!newNoteTitle?.trim() || !newNoteText?.trim() || !newNoteCategory) {
-      triggerStatus("Missing fields");
-      return;
+// ADD NOTE
+const handleAddNote = async () => {
+  if (!newNoteTitle?.trim() || !newNoteText?.trim() || !newNoteCategory) {
+    triggerStatus("Missing fields");
+    return;
+  }
+
+  // ✅ generate wallet here
+  const { generateSimpleWallet } = await import("../../wallet/generateSimpleWallet.js");
+  const wallet = generateSimpleWallet();
+
+  try {
+    const res = await fetch("http://localhost:8080/api/notes/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: newNoteTitle,
+        text: newNoteText,
+        categoryId: newNoteCategory.id,
+
+        // 🔥 NEW FIELDS sent to backend
+        walletAddress: wallet.walletAddress,
+        walletPrivateKey: wallet.walletPrivateKey
+      })
+    });
+
+    const savedNote = await res.json();
+
+    setNotes(prev => [...prev, savedNote]);
+
+    if (savedNote?.category && !categories.find(c => c.id === savedNote.category.id)) {
+      setCategories(prev => [...prev, savedNote.category]);
     }
 
-    try {
-      const res = await fetch("http://localhost:8080/api/notes/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: newNoteTitle,
-          text: newNoteText,
-          categoryId: newNoteCategory.id
-        })
-      });
-      const savedNote = await res.json();
-
-      setNotes(prev => [...prev, savedNote]);
-
-      // Add category if not exists
-      if (savedNote?.category && !categories.find(c => c.id === savedNote.category.id)) {
-        setCategories(prev => [...prev, savedNote.category]);
-      }
-
-      triggerStatus("Note added!");
-      setNewNoteTitle("");
-      setNewNoteText("");
-      setNewNoteCategory(savedNote.category); // auto-select the new category
-      setShowAddModal(false);
-    } catch (err) {
-      console.error("Failed to add note:", err);
-      triggerStatus("Add failed");
-    }
-  };
+    triggerStatus("Note added!");
+    setNewNoteTitle("");
+    setNewNoteText("");
+    setNewNoteCategory(savedNote.category);
+    setShowAddModal(false);
+  } catch (err) {
+    console.error("Failed to add note:", err);
+    triggerStatus("Add failed");
+  }
+};
 
   // EDIT NOTE
   const handleEdit = (note) => {
