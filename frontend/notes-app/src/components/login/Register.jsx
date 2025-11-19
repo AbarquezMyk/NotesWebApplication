@@ -13,20 +13,53 @@ export default function Register({ onRegister, goToLogin }) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
 
-  const handleRegister = (e) => {
-    e.preventDefault();
-    if (!firstName || !lastName || !username || !email || !dob || !password || !confirmPassword) {
-      setError("Please fill in all fields.");
+  const handleRegister = async (e) => {
+  e.preventDefault();
+
+  if (!firstName || !lastName || !username || !email || !dob || !password || !confirmPassword) {
+    setError("Please fill in all fields.");
+    return;
+  }
+  if (password !== confirmPassword) {
+    setError("Passwords do not match.");
+    return;
+  }
+
+  setError("");
+
+  try {
+    const response = await fetch("http://localhost:8080/api/users/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        username,
+        email,
+        birthdate: dob,   // match backend field name
+        password,
+        confirmPassword
+      }),
+    });
+
+    if (!response.ok) {
+      const msg = await response.text();
+      setError(msg || "Registration failed.");
       return;
     }
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-    setError("");
-    onRegister({ firstName, lastName, username, email, dob, password });
+
+    const data = await response.json();
+    console.log("Registered user:", data);
+
+    // Optionally call parent callback
+    if (onRegister) onRegister(data);
+
+    // Redirect to login
     goToLogin();
-  };
+  } catch (err) {
+    setError("Server error: " + err.message);
+  }
+};
 
   const EyeOpen = (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -42,7 +75,7 @@ const EyeClosed = (
       stroke="#C69C6D" strokeWidth="2" />
     <path d="M12 5C18 5 22 12 22 12C21.46 12.96 20.84 13.85 20.17 14.64"
       stroke="#C69C6D" strokeWidth="2" />
-    <circle cx="12" cy="12" r="3" stroke="#C69C6D" strokeWidth="2" />
+    <circle cx="12" cy="12" r="3" stroke="rgba(198, 156, 109, 1)" strokeWidth="2" />
   </svg>
 );
 
