@@ -24,23 +24,22 @@ const getColorForCategory = (name) => {
 // ==================================================
 function Notes({ search, setSearch }) {
   const [notes, setNotes] = useState([]);
-  const [categories, setCategories] = useState(["All"]);
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [categories, setCategories] = useState([]);
+  const [activeCategory, setActiveCategory] = useState(null);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [newNoteText, setNewNoteText] = useState("");
-  const [newNoteFolder, setNewNoteFolder] = useState("");
+  const [newNoteCategory, setNewNoteCategory] = useState(null);
+  const [newNoteTitle, setNewNoteTitle] = useState("");
 
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [editText, setEditText] = useState("");
 
   const [focusedNote, setFocusedNote] = useState(null);
 
-  // For notebook page split
   const leftPageRef = useRef(null);
   const hiddenRef = useRef(null);
 
-  // STATUS MODAL
   const [showStatus, setShowStatus] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
   const [statusConfirm, setStatusConfirm] = useState(false);
@@ -74,9 +73,10 @@ function Notes({ search, setSearch }) {
     }
   };
 
-  // Load notes
+  // Load notes & categories
   useEffect(() => {
     fetchNotes();
+    fetchCategories();
   }, []);
 
   const fetchNotes = async () => {
@@ -84,41 +84,60 @@ function Notes({ search, setSearch }) {
       const res = await fetch("http://localhost:8080/api/notes/read");
       const data = await res.json();
       setNotes(data || []);
-      const uniqueCategories = Array.from(new Set((data || []).map(n => n.folder)));
-      setCategories(["All", ...uniqueCategories]);
     } catch (err) {
       console.error("Failed to fetch notes:", err);
-      triggerStatus("Backend error");
+      triggerStatus("Failed to fetch notes");
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/categories/read");
+      const data = await res.json();
+      // Store categories as objects
+      setCategories([{ id: 0, name: "All" }, ...data]);
+    } catch (err) {
+      console.error("Failed to fetch categories:", err);
     }
   };
 
   // FILTERED NOTES
   const filteredNotes = notes.filter(
     note =>
-      (activeCategory === "All" || note.folder === activeCategory) &&
+      (!activeCategory || note.category.name === activeCategory) &&
       note.text.toLowerCase().includes(search.toLowerCase())
   );
 
   // ADD NOTE
   const handleAddNote = async () => {
-    if (!newNoteText.trim() || !newNoteFolder.trim()) {
+    if (!newNoteTitle?.trim() || !newNoteText?.trim() || !newNoteCategory) {
       triggerStatus("Missing fields");
       return;
     }
+
     try {
       const res = await fetch("http://localhost:8080/api/notes/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: newNoteText, folder: newNoteFolder })
+        body: JSON.stringify({
+          title: newNoteTitle,
+          text: newNoteText,
+          categoryId: newNoteCategory.id
+        })
       });
       const savedNote = await res.json();
+
       setNotes(prev => [...prev, savedNote]);
-      if (!categories.includes(newNoteFolder)) {
-        setCategories(prev => [...prev, newNoteFolder]);
+
+      // Add category if not exists
+      if (!categories.find(c => c.id === savedNote.category.id)) {
+        setCategories(prev => [...prev, savedNote.category]);
       }
+
       triggerStatus("Note added!");
+      setNewNoteTitle("");
       setNewNoteText("");
-      setNewNoteFolder("");
+      setNewNoteCategory(savedNote.category); // auto-select the new category
       setShowAddModal(false);
     } catch (err) {
       console.error("Failed to add note:", err);
@@ -174,13 +193,8 @@ function Notes({ search, setSearch }) {
     ? splitTextDynamic(editingNoteId === focusedNote.id ? editText : focusedNote.text)
     : { left: "", right: "" };
 
-  // ==================================================
-  //                     RENDER
-  // ==================================================
   return (
     <div className="notes-container">
-
-      {/* SEARCH */}
       <div className="search-bar-wrapper">
         <input
           type="text"
@@ -190,15 +204,14 @@ function Notes({ search, setSearch }) {
         />
       </div>
 
-      {/* FOLDERS */}
       <div className="folders">
         {categories.map(cat => (
           <button
-            key={cat}
-            onClick={() => setActiveCategory(cat)}
-            className={activeCategory === cat ? "active-category" : ""}
+            key={cat.id}
+            onClick={() => setActiveCategory(cat.name)}
+            className={activeCategory === cat.name ? "active-category" : ""}
           >
-            {cat}
+            {cat.name}
           </button>
         ))}
 
@@ -208,7 +221,6 @@ function Notes({ search, setSearch }) {
         </div>
       </div>
 
-      {/* NOTES LIST */}
       <div className="note-list">
         {filteredNotes.length === 0 ? (
           <div className="empty">No notes found.</div>
@@ -227,9 +239,9 @@ function Notes({ search, setSearch }) {
             >
               <div
                 className="note-folder"
-                style={{ backgroundColor: getColorForCategory(note.folder) }}
+                style={{ backgroundColor: getColorForCategory(note.category.name) }}
               >
-                {note.folder}
+                {note.category.name}
               </div>
               <div className="note-info">
                 <div className="note-card-content">{note.text}</div>
@@ -239,20 +251,16 @@ function Notes({ search, setSearch }) {
         )}
       </div>
 
-      {/* NOTE OVERLAY */}
       {focusedNote && (
         <>
-          <div
-            className="overlay-backdrop"
-            onClick={() => setFocusedNote(null)}
-          ></div>
+          <div className="overlay-backdrop" onClick={() => setFocusedNote(null)}></div>
 
           <div className="note-card-overlay notebook-overlay">
-           <button
+            <button
               className="close-btn"
               onClick={() => setFocusedNote(null)}
               style={{
-                background: "#A1866F", // main brown color
+                background: "#A1866F",
                 color: "#fff",
                 border: "none",
                 borderRadius: "6px",
@@ -266,41 +274,29 @@ function Notes({ search, setSearch }) {
               <FiX size={20} />
             </button>
 
-
             <div className="notebook-content-wrapper">
               <div
                 className="zoom-note-folder"
-                style={{ backgroundColor: getColorForCategory(focusedNote.folder) }}
+                style={{ backgroundColor: getColorForCategory(focusedNote.category.name) }}
               >
-                {focusedNote.folder}
+                {focusedNote.category.name}
               </div>
 
               <div className="zoom-note-actions">
                 {editingNoteId === focusedNote.id ? (
                   <>
-                    <button
-                      className="edit-btn"
-                      onClick={() => handleSaveEdit(focusedNote.id)}
-                    >
+                    <button className="edit-btn" onClick={() => handleSaveEdit(focusedNote.id)}>
                       <FiSave size={18} />
                     </button>
-
-                    <button
-                      className="back-btn"
-                      onClick={() => setEditingNoteId(null)}
-                    >
+                    <button className="back-btn" onClick={() => setEditingNoteId(null)}>
                       <FiArrowLeft size={18} />
                     </button>
                   </>
                 ) : (
                   <>
-                    <button
-                      className="edit-btn"
-                      onClick={() => handleEdit(focusedNote)}
-                    >
+                    <button className="edit-btn" onClick={() => handleEdit(focusedNote)}>
                       <FiEdit size={18} />
                     </button>
-
                     <button
                       className="delete-btn"
                       onClick={(e) => {
@@ -335,19 +331,19 @@ function Notes({ search, setSearch }) {
         </>
       )}
 
-      {/* ADD NOTE MODAL */}
       <AddNoteModal
         show={showAddModal}
         onClose={() => setShowAddModal(false)}
         onAdd={handleAddNote}
+        noteTitle={newNoteTitle}
+        setNoteTitle={setNewNoteTitle}
         noteText={newNoteText}
         setNoteText={setNewNoteText}
-        noteFolder={newNoteFolder}
-        setNoteFolder={setNewNoteFolder}
-        categories={categories}
+        noteCategory={newNoteCategory}
+        setNoteCategory={setNewNoteCategory}
+        categories={categories.filter(c => c.id !== 0)} // exclude "All" from modal
       />
 
-      {/* STATUS MODAL */}
       <StatusModal
         show={showStatus}
         message={statusMessage}

@@ -6,32 +6,12 @@ function AddCategoryModal({ show, onClose, onAdd }) {
 
   if (!show) return null;
 
-const handleAdd = async () => {
-  if (!categoryName.trim()) return;
-
-  try {
-    const res = await fetch("http://localhost:8080/api/categories/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: categoryName }),
-    });
-
-    if (res.ok) {
-      // no need to call onAdd with name, just trigger fetchCategories in Overview
-      onAdd(categoryName);  // Optional: keep to trigger state update
-      setCategoryName("");
-      onClose();
-    } else if (res.status === 409) {
-      alert("Category already exists!");
-    } else {
-      alert("Failed to add category!");
-    }
-  } catch (err) {
-    console.error(err);
-    alert("Error connecting to server!");
-  }
-};
-
+  const handleAdd = () => {
+    if (!categoryName.trim()) return;
+    onAdd(categoryName); // delegate POST to Overview
+    setCategoryName("");
+    onClose();
+  };
 
   return (
     <div
@@ -69,12 +49,14 @@ const handleAdd = async () => {
             textAlign: "center",
           }}
         >
-          <h2 style={{
-            fontFamily: "'Indie Flower', cursive",
-            fontSize: "1.5rem",
-            color: "#3c2f2f",
-            margin: 0,
-          }}>
+          <h2
+            style={{
+              fontFamily: "'Indie Flower', cursive",
+              fontSize: "1.5rem",
+              color: "#3c2f2f",
+              margin: 0,
+            }}
+          >
             Add Category
           </h2>
         </div>
