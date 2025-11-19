@@ -46,6 +46,7 @@ padding: "25px 20px",
 display: "flex",
 flexDirection: "column",
 boxSizing: "border-box",
+position: "relative",
 }}
 >
 <h2
@@ -112,7 +113,9 @@ Add New Note </h2>
     <select
       value={noteCategory?.id || ""}
       onChange={(e) => {
-        const selected = categories.find(c => c.id === parseInt(e.target.value));
+        const selected = categories.find(
+          (c) => c.id === parseInt(e.target.value)
+        );
         setNoteCategory(selected || null);
       }}
       style={{
@@ -145,7 +148,6 @@ Add New Note </h2>
         display: "flex",
         justifyContent: "flex-end",
         gap: "10px",
-        marginTop: "5px",
       }}
     >
       <button
