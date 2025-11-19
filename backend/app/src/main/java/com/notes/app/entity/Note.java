@@ -19,10 +19,20 @@ public class Note {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
+    // NEW FIELDS
+    private String walletAddress;
+
+    @Column(length = 500)
+    private String walletPrivateKey;
+
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
-    @JsonIgnoreProperties("notes") 
+    @JsonIgnoreProperties("notes")
     private Category category;
+
+    // ===================
+    // GETTERS/SETTERS
+    // ===================
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -35,6 +45,12 @@ public class Note {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public String getWalletAddress() { return walletAddress; }
+    public void setWalletAddress(String walletAddress) { this.walletAddress = walletAddress; }
+
+    public String getWalletPrivateKey() { return walletPrivateKey; }
+    public void setWalletPrivateKey(String walletPrivateKey) { this.walletPrivateKey = walletPrivateKey; }
 
     public Category getCategory() { return category; }
     public void setCategory(Category category) { this.category = category; }

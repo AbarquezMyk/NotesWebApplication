@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emurgo/cardano-serialization-lib-browser": "^15.0.3",
     "axios": "^1.12.2",
+    "cardano-crypto.js": "^6.1.2",
     "chart.js": "^4.5.1",
     "react": "^19.1.1",
     "react-chartjs-2": "^5.3.1",

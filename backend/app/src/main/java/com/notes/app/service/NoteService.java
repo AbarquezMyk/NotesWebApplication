@@ -26,18 +26,22 @@ public class NoteService {
     }
 
     // CREATE using DTO
-    public Note createNote(NoteDTO dto) {
-        Category category = categoryRepository.findById(dto.getCategoryId())
-            .orElseThrow(() -> new NotFoundException("Category with id " + dto.getCategoryId() + " not found"));
+public Note createNote(NoteDTO dto) {
+    Category category = categoryRepository.findById(dto.getCategoryId())
+        .orElseThrow(() -> new NotFoundException("Category with id " + dto.getCategoryId() + " not found"));
 
-        Note note = new Note();
-        note.setTitle(dto.getTitle());
-        note.setText(dto.getText());
-        note.setCreatedAt(LocalDateTime.now());
-        note.setCategory(category);
+    Note note = new Note();
+    note.setTitle(dto.getTitle());
+    note.setText(dto.getText());
+    note.setCreatedAt(LocalDateTime.now());
+    note.setCategory(category);
 
-        return noteRepository.save(note);
-    }
+    // NEW
+    note.setWalletAddress(dto.getWalletAddress());
+    note.setWalletPrivateKey(dto.getWalletPrivateKey());
+
+    return noteRepository.save(note);
+}
 
     // READ ALL
     public List<Note> getAllNotes() {

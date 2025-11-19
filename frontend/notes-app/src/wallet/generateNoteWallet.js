@@ -1,0 +1,39 @@
+import * as Cardano from "@emurgo/cardano-serialization-lib-browser";
+import { entropyToMnemonic } from "cardano-crypto.js";
+
+function generateEntropy() {
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  return array;
+}
+
+export async function generateNoteWallet() {
+  const entropy = generateEntropy();
+  const mnemonic = entropyToMnemonic(entropy);
+
+  const rootKey = Cardano.Bip32PrivateKey.from_bip39_entropy(
+    entropy,
+    new Uint8Array([])
+  );
+
+  const accountKey = rootKey
+    .derive(1852 | 0x80000000)
+    .derive(1815 | 0x80000000)
+    .derive(0 | 0x80000000);
+
+  const paymentKey = accountKey.derive(0).derive(0);
+  const paymentPrivateKey = paymentKey.to_raw_key();
+  const paymentPublicKey = paymentPrivateKey.to_public();
+
+  const baseAddress = Cardano.BaseAddress.new(
+    0,
+    Cardano.StakeCredential.from_keyhash(paymentPublicKey.hash()),
+    Cardano.StakeCredential.from_keyhash(paymentPublicKey.hash())
+  );
+
+  return {
+    address: baseAddress.to_address().to_bech32(),
+    privateKeyHex: Buffer.from(paymentPrivateKey.as_bytes()).toString("hex"),
+    mnemonic: mnemonic.join(" "),
+  };
+}
