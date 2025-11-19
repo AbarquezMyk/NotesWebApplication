@@ -75,7 +75,7 @@ const EyeClosed = (
       stroke="#C69C6D" strokeWidth="2" />
     <path d="M12 5C18 5 22 12 22 12C21.46 12.96 20.84 13.85 20.17 14.64"
       stroke="#C69C6D" strokeWidth="2" />
-    <circle cx="12" cy="12" r="3" stroke="#C69C6D" strokeWidth="2" />
+    <circle cx="12" cy="12" r="3" stroke="rgba(198, 156, 109, 1)" strokeWidth="2" />
   </svg>
 );
 

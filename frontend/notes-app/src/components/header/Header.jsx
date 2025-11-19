@@ -15,7 +15,6 @@ function Header({ username }) {
         {open && (
           <ul className="dropdown-menu">
             <li>Profile</li>
-            <li>Settings</li>
             <li>Log Out</li>
           </ul>
         )}

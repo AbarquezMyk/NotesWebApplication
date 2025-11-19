@@ -5,6 +5,8 @@ import Sidebar from "./components/Sidebar";
 import Header from "./components/header/Header";
 import Overview from "./components/overview/Overview";
 import Notes from "./components/notes/Notes";
+import Profile from "./components/profile/Profile";
+
 
 import "./App.css";
 
@@ -19,6 +21,7 @@ function AppWrapper() {
   useEffect(() => {
     if (location.pathname === "/overview") setActivePage("Overview");
     else if (location.pathname === "/notes") setActivePage("Notes");
+    else if (location.pathname === "/profile") setActivePage("Profile");
   }, [location]);
 
   // Handle sidebar page change
@@ -26,6 +29,7 @@ function AppWrapper() {
     setActivePage(page);
     if (page === "Overview") navigate("/overview");
     if (page === "Notes") navigate("/notes");
+    if (page === "Profile") navigate("/profile");
   };
 
   return (
@@ -40,14 +44,12 @@ function AppWrapper() {
 
         <div className="main-content">
           <Routes>
-            <Route path="/overview" element={<Overview />} />
-            <Route
-              path="/notes"
-              element={<Notes search={search} setSearch={setSearch} />}
-            />
-            {/* Redirect unknown routes to Overview */}
-            <Route path="*" element={<Navigate to="/overview" />} />
-          </Routes>
+         <Route path="/overview" element={<Overview />} />
+         <Route path="/notes" element={<Notes search={search} setSearch={setSearch} />} />
+         <Route path="/profile" element={<Profile />} />  {/* <-- added Profile route */}
+           {/* Redirect unknown routes to Overview */}
+         <Route path="*" element={<Navigate to="/overview" />} />
+        </Routes>
         </div>
       </div>
     </div>

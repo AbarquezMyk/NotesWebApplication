@@ -14,7 +14,6 @@ function ProfileMenu({ username, profilePic }) {
       {open && (
         <ul className="dropdown-menu">
           <li><FiUser size={16} /> Profile</li>
-          <li><FiSettings size={16} /> Settings</li>
           <li><FiLogOut size={16} /> Log Out</li>
         </ul>
       )}
