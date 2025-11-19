@@ -5,6 +5,11 @@ import org.springframework.web.bind.annotation.*;
 import com.notes.app.entity.User;
 import com.notes.app.service.UserService;
 
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import java.util.Map;
+import java.util.HashMap;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Optional;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -31,4 +36,11 @@ public class UserController {
         }
         return "Invalid username or password!";
     }
+
+    @PostMapping("/link-wallet")
+public ResponseEntity<?> linkWallet(@RequestBody Map<String, String> body) {
+    String address = body.get("walletAddress");
+    userService.updateWalletAddress(address);
+    return ResponseEntity.ok(Map.of("status", "wallet linked"));
+}
 }

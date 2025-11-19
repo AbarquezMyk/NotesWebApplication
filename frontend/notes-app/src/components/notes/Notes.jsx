@@ -82,10 +82,27 @@ function Notes({ search, setSearch }) {
   const fetchNotes = async () => {
     try {
       const res = await fetch("http://localhost:8080/api/notes/read");
+
+      // 🔐 Handle HTTP errors like 500 cleanly
+      if (!res.ok) {
+        console.error("Failed to fetch notes. HTTP", res.status);
+        setNotes([]);              // keep notes as an array
+        triggerStatus("Failed to fetch notes");
+        return;
+      }
+
       const data = await res.json();
-      setNotes(data || []);
+
+      // 🔐 Make absolutely sure we save an array in state
+      if (!Array.isArray(data)) {
+        console.error("Notes API did not return an array:", data);
+        setNotes([]);
+      } else {
+        setNotes(data);
+      }
     } catch (err) {
       console.error("Failed to fetch notes:", err);
+      setNotes([]);                // keep notes as an array
       triggerStatus("Failed to fetch notes");
     }
   };
@@ -93,19 +110,30 @@ function Notes({ search, setSearch }) {
   const fetchCategories = async () => {
     try {
       const res = await fetch("http://localhost:8080/api/categories/read");
+      if (!res.ok) {
+        console.error("Failed to fetch categories. HTTP", res.status);
+        setCategories([{ id: 0, name: "All" }]);
+        return;
+      }
+
       const data = await res.json();
+      const normalized = Array.isArray(data) ? data : [];
       // Store categories as objects
-      setCategories([{ id: 0, name: "All" }, ...data]);
+      setCategories([{ id: 0, name: "All" }, ...normalized]);
     } catch (err) {
       console.error("Failed to fetch categories:", err);
+      setCategories([{ id: 0, name: "All" }]);
     }
   };
 
+  // 🔐 Make sure we never call .filter on a non-array
+  const safeNotes = Array.isArray(notes) ? notes : [];
+
   // FILTERED NOTES
-  const filteredNotes = notes.filter(
+  const filteredNotes = safeNotes.filter(
     note =>
-      (!activeCategory || note.category.name === activeCategory) &&
-      note.text.toLowerCase().includes(search.toLowerCase())
+      (!activeCategory || note?.category?.name === activeCategory) &&
+      (note?.text || "").toLowerCase().includes((search || "").toLowerCase())
   );
 
   // ADD NOTE
@@ -130,7 +158,7 @@ function Notes({ search, setSearch }) {
       setNotes(prev => [...prev, savedNote]);
 
       // Add category if not exists
-      if (!categories.find(c => c.id === savedNote.category.id)) {
+      if (savedNote?.category && !categories.find(c => c.id === savedNote.category.id)) {
         setCategories(prev => [...prev, savedNote.category]);
       }
 
@@ -174,7 +202,7 @@ function Notes({ search, setSearch }) {
   // NOTEBOOK PAGE SPLIT
   const splitTextDynamic = (text) => {
     if (!leftPageRef.current || !hiddenRef.current) return { left: text, right: "" };
-    const words = text.split(" ");
+    const words = (text || "").split(" ");
     let leftText = "";
     let rightText = "";
     hiddenRef.current.innerText = "";
@@ -239,9 +267,9 @@ function Notes({ search, setSearch }) {
             >
               <div
                 className="note-folder"
-                style={{ backgroundColor: getColorForCategory(note.category.name) }}
+                style={{ backgroundColor: getColorForCategory(note?.category?.name || "") }}
               >
-                {note.category.name}
+                {note?.category?.name}
               </div>
               <div className="note-info">
                 <div className="note-card-content">{note.text}</div>
@@ -277,9 +305,9 @@ function Notes({ search, setSearch }) {
             <div className="notebook-content-wrapper">
               <div
                 className="zoom-note-folder"
-                style={{ backgroundColor: getColorForCategory(focusedNote.category.name) }}
+                style={{ backgroundColor: getColorForCategory(focusedNote?.category?.name || "") }}
               >
-                {focusedNote.category.name}
+                {focusedNote?.category?.name}
               </div>
 
               <div className="zoom-note-actions">

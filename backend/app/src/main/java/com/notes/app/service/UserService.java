@@ -26,4 +26,22 @@ public class UserService {
         }
         return Optional.empty();
     }
+
+    // ------------------------------------------------------
+    //  TEMPORARY getCurrentUser() until login session exists
+    // ------------------------------------------------------
+    public User getCurrentUser() {
+        return userRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("User with ID 1 not found"));
+    }
+
+    // ------------------------------------------------------
+    //  Save wallet address from Lace Wallet
+    // ------------------------------------------------------
+    public void updateWalletAddress(String address) {
+        User user = getCurrentUser();
+        user.setWalletAddress(address);
+        user.setWalletLinked(true);
+        userRepository.save(user);
+    }
 }

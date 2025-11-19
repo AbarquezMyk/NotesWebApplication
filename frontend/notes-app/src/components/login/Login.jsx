@@ -1,11 +1,22 @@
 import { useState } from "react";
 import "./Auth.css";
+import { useWallet } from "../../context/WalletContext.jsx";
 
 export default function Login({ onLogin, goToRegister }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const {
+    isAvailable,
+    isConnected,
+    isConnecting,
+    networkLabel,
+    shortenedAddress,
+    connectWallet,
+    disconnectWallet,
+    error: walletError,
+  } = useWallet();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -96,6 +107,48 @@ export default function Login({ onLogin, goToRegister }) {
             Register
           </span>
         </p>
+
+        <div className="wallet-connect-card">
+          <p className="wallet-connect-title">Prefer using your Cardano wallet?</p>
+
+          {!isAvailable && (
+            <p className="wallet-hint">
+              Install the Lace extension in Chrome, then refresh this page.
+            </p>
+          )}
+
+          {isAvailable && !isConnected && (
+            <button
+              type="button"
+              className="wallet-secondary-button"
+              onClick={connectWallet}
+              disabled={isConnecting}
+            >
+              {isConnecting ? "Opening Lace…" : "Connect Lace Wallet"}
+            </button>
+          )}
+
+          {isConnected && (
+            <>
+              <div className="wallet-connected-row">
+                <span>{networkLabel}</span>
+                <strong>{shortenedAddress}</strong>
+              </div>
+              <button
+                type="button"
+                className="wallet-secondary-button"
+                onClick={disconnectWallet}
+              >
+                Disconnect Lace
+              </button>
+            </>
+          )}
+
+          {walletError && <small className="wallet-error">{walletError}</small>}
+          <small className="wallet-note">
+            Wallet connection is experimental and does not replace account login yet.
+          </small>
+        </div>
       </div>
     </div>
   );

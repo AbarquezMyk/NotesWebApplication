@@ -2,6 +2,7 @@ package com.notes.app.entity;
 
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
@@ -14,15 +15,15 @@ public class Note {
 
     private String title;
     private String text;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
-    // Many notes belong to one category
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
-    @JsonIgnoreProperties("notes") // Prevent infinite recursion
+    @JsonIgnoreProperties("notes") 
     private Category category;
 
-    // Getters & setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

@@ -25,8 +25,20 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Transient // not stored in DB
+    @Transient
     private String confirmPassword;
+
+    // ==========================
+    // WALLET FIELDS ADDED HERE
+    // ==========================
+
+    private String walletAddress;
+
+    private boolean walletLinked;
+
+    // ==========================
+    // Getters and setters
+    // ==========================
 
     public Long getId() {
         return id;
@@ -92,5 +104,19 @@ public class User {
         this.confirmPassword = confirmPassword;
     }
 
-    // Getters and Setters
+    public String getWalletAddress() {
+        return walletAddress;
+    }
+
+    public void setWalletAddress(String walletAddress) {
+        this.walletAddress = walletAddress;
+    }
+
+    public boolean isWalletLinked() {
+        return walletLinked;
+    }
+
+    public void setWalletLinked(boolean walletLinked) {
+        this.walletLinked = walletLinked;
+    }
 }

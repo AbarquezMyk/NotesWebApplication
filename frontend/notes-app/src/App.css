@@ -114,12 +114,67 @@ body, html, #root {
 /* Header */
 .app-header {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
   background-color: var(--sidebar-bg);
   border-bottom: 2px solid #C69C6D;
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.wallet-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.wallet-button,
+.wallet-chip {
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid #C69C6D;
+  background: #fff;
+  color: var(--text-color);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wallet-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.wallet-button:hover:not(:disabled),
+.wallet-chip:hover {
+  background: var(--highlight-color);
+  box-shadow: 0 0 10px rgba(0,0,0,0.08);
+}
+
+.wallet-chip {
+  border-color: #8C5E3C;
+  background: #F2E3D5;
+}
+
+.wallet-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6EC207;
+  display: inline-block;
+}
+
+.wallet-error {
+  color: #b42318;
+  font-size: 0.75rem;
+}
+
+.wallet-hint {
+  font-size: 0.75rem;
+  color: #7F5A40;
 }
 
 /* Logo in header */

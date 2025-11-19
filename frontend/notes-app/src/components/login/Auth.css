@@ -150,6 +150,60 @@ html, body {
   text-decoration: underline;
 }
 
+.wallet-connect-card {
+  margin-top: 1.5rem;
+  padding: 1rem 1.2rem;
+  border: 1px dashed #8C5E3C;
+  border-radius: 12px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.wallet-connect-title {
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+  color: #3E2C1C;
+}
+
+.wallet-hint,
+.wallet-note,
+.wallet-error {
+  display: block;
+  font-size: 0.8rem;
+  color: #7F5A40;
+  margin-top: 0.4rem;
+}
+
+.wallet-error {
+  color: #b42318;
+}
+
+.wallet-secondary-button {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #8C5E3C;
+  background: transparent;
+  color: #3E2C1C;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 0.4rem;
+}
+
+.wallet-secondary-button:hover {
+  background: #F2E3D5;
+}
+
+.wallet-connected-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.8rem;
+  font-size: 0.9rem;
+  color: #3E2C1C;
+}
+
 /* ERROR MESSAGE */
 .auth-box .error-message {
   color: #2c261f;
