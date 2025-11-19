@@ -1,8 +1,15 @@
 import React, { useState } from "react";
 import { FiChevronDown } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 function Header({ username }) {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate(); // <- useNavigate hook
+
+  const handleLogout = () => {
+    // You can also clear any auth state here if you have one
+    navigate("/login"); // Redirect to login page
+  };
 
   return (
     <header className="app-header">
@@ -15,7 +22,9 @@ function Header({ username }) {
         {open && (
           <ul className="dropdown-menu">
             <li>Profile</li>
-            <li>Log Out</li>
+            <li onClick={handleLogout} style={{ cursor: "pointer" }}>
+              Log Out
+            </li>
           </ul>
         )}
       </div>
