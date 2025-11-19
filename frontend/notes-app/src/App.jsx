@@ -1,48 +1,31 @@
-import React, { useState } from "react";
-import "./App.css";
+import React, { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
-import Header from "./components/Header";
-import NoteInput from "./components/NoteInput";
-import NoteList from "./components/NoteList";
+import Header from "./components/header/Header";
+import Notes from "./components/notes/Notes";
+import Overview from "./components/overview/Overview";
+import "./App.css";
 
 function App() {
+  const [activePage, setActivePage] = useState(
+    () => localStorage.getItem("activePage") || "Overview"
+  );
   const [search, setSearch] = useState("");
-  const [activeFolder, setActiveFolder] = useState("All Notes");
-  const [refresh, setRefresh] = useState(0);
 
-  const folders = ["All Notes", "School", "Personal", "Ideas"];
+  useEffect(() => {
+    localStorage.setItem("activePage", activePage);
+  }, [activePage]);
 
   return (
     <div className="app-wrapper">
-      <Sidebar
-        folders={folders}
-        activeFolder={activeFolder}
-        setActiveFolder={setActiveFolder}
-      />
+      <Sidebar activePage={activePage} setActivePage={setActivePage} />
 
-      <main className="main-content">
-        <Header
-          activeFolder={activeFolder}
-          search={search}
-          setSearch={setSearch}
-        />
-
-        {/* Sticky NoteInput for folders other than All Notes */}
-        {activeFolder !== "All Notes" && (
-          <div className="note-input-wrapper sticky">
-            <NoteInput
-              activeFolder={activeFolder}
-              onNoteAdded={() => setRefresh(r => r + 1)}
-            />
-          </div>
-        )}
-
-        <NoteList
-          activeFolder={activeFolder}
-          search={search}
-          refresh={refresh}
-        />
-      </main>
+      <div className="main-area" style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+        <Header />
+        <div className="main-content">
+          {activePage === "Overview" && <Overview />}
+          {activePage === "Notes" && <Notes search={search} setSearch={setSearch} />}
+        </div>
+      </div>
     </div>
   );
 }
