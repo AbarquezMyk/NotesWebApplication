@@ -7,17 +7,34 @@ export default function Login({ onLogin, goToRegister }) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
-  const handleLogin = (e) => {
-    e.preventDefault();
+  const handleLogin = async (e) => {
+  e.preventDefault();
 
-    if (!username || !password) {
-      setError("Please fill in all fields.");
-      return;
+  if (!username || !password) {
+    setError("Please fill in all fields.");
+    return;
+  }
+
+  setError("");
+
+  try {
+    const response = await fetch(
+      `http://localhost:8080/api/users/login?username=${username}&password=${password}`,
+      { method: "POST" }
+    );
+
+    const msg = await response.text();
+
+    if (response.ok && msg.includes("Login successful")) {
+      // Pass user info back to parent
+      if (onLogin) onLogin(username);
+    } else {
+      setError(msg || "Invalid username or password.");
     }
-
-    setError("");
-    onLogin(username);
-  };
+  } catch (err) {
+    setError("Server error: " + err.message);
+  }
+};
 
   const EyeOpen = (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
