@@ -1,16 +1,24 @@
-import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 import Sidebar from "./components/Sidebar";
 import Header from "./components/header/Header";
 import Overview from "./components/overview/Overview";
 import Notes from "./components/notes/Notes";
+<<<<<<< HEAD
 import Profile from "./components/profile/Profile";
 
+=======
+import Homepage from "./components/homepage/Homepage";
+import Login from "./components/login/Login";
+import Register from "./components/login/Register";
+>>>>>>> c45c2aac4cdf9d292c084f7afc85262ea935572c
 
 import "./App.css";
 
+// Main app wrapper for logged-in users
 function AppWrapper() {
+<<<<<<< HEAD
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -32,16 +40,16 @@ function AppWrapper() {
     if (page === "Profile") navigate("/profile");
   };
 
+=======
+>>>>>>> c45c2aac4cdf9d292c084f7afc85262ea935572c
   return (
     <div className="app-wrapper">
-      <Sidebar activePage={activePage} setActivePage={handlePageChange} />
-
+      <Sidebar />
       <div
         className="main-area"
         style={{ display: "flex", flexDirection: "column", flex: 1 }}
       >
-        <Header search={search} setSearch={setSearch} />
-
+        <Header />
         <div className="main-content">
           <Routes>
          <Route path="/overview" element={<Overview />} />
@@ -50,16 +58,34 @@ function AppWrapper() {
            {/* Redirect unknown routes to Overview */}
          <Route path="*" element={<Navigate to="/overview" />} />
         </Routes>
+            <Route path="/overview" element={<Overview />} />
+            <Route path="/notes" element={<Notes />} />
+            <Route path="*" element={<Navigate to="/overview" />} />
+          </Routes>
         </div>
       </div>
     </div>
   );
 }
 
+// Main App
 export default function App() {
+  const isLoggedIn = false; // <-- replace with your login state
+
   return (
     <Router>
-      <AppWrapper />
+      <Routes>
+        {!isLoggedIn ? (
+          <>
+            <Route path="/" element={<Homepage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </>
+        ) : (
+          <Route path="/*" element={<AppWrapper />} />
+        )}
+      </Routes>
     </Router>
   );
 }

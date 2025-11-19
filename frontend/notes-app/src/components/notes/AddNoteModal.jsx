@@ -42,10 +42,11 @@ function AddNoteModal({
           backgroundColor: "var(--bg-color)",
           borderRadius: "14px",
           boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
-          padding: "25px 20px",
+          padding: "25px 20px 80px 20px", // extra bottom padding for buttons
           display: "flex",
           flexDirection: "column",
           boxSizing: "border-box",
+          position: "relative", // for absolute buttons
         }}
       >
         {/* Title */}
@@ -127,13 +128,14 @@ function AddNoteModal({
           ))}
         </select>
 
-        {/* Buttons */}
+        {/* Buttons (absolute positioned) */}
         <div
           style={{
+            position: "absolute",
+            bottom: "20px", // adjust manually to move down/up
+            right: "20px",
             display: "flex",
-            justifyContent: "flex-end",
             gap: "10px",
-            marginTop: "5px",
           }}
         >
           <button
