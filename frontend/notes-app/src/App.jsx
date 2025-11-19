@@ -1,107 +1,63 @@
 import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+
 import Sidebar from "./components/Sidebar";
 import Header from "./components/header/Header";
-import NoteInput from "./components/NoteInput";
-import NoteList from "./components/NoteList";
-import Login from "./components/Login";
-import Register from "./components/Register";
-
-import Notes from "./components/notes/Notes";
 import Overview from "./components/overview/Overview";
+import Notes from "./components/notes/Notes";
+
 import "./App.css";
 
-function App() {
-  const [user, setUser] = useState(null); // null means not logged in
-  const [showRegister, setShowRegister] = useState(false); // toggle register page
-  const [activePage, setActivePage] = useState(
-    () => localStorage.getItem("activePage") || "Overview"
-  );
+function AppWrapper() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [activePage, setActivePage] = useState("Overview");
   const [search, setSearch] = useState("");
 
-  // Example state for folders/notes
-  const [folders, setFolders] = useState(["All Notes", "Work", "Personal"]);
-  const [activeFolder, setActiveFolder] = useState("All Notes");
-  const [refresh, setRefresh] = useState(0);
-
+  // Sync activePage with URL
   useEffect(() => {
-    localStorage.setItem("activePage", activePage);
-  }, [activePage]);
+    if (location.pathname === "/overview") setActivePage("Overview");
+    else if (location.pathname === "/notes") setActivePage("Notes");
+  }, [location]);
 
-  // Simple login handler
-  const handleLogin = (username) => {
-    setUser({ name: username });
+  // Handle sidebar page change
+  const handlePageChange = (page) => {
+    setActivePage(page);
+    if (page === "Overview") navigate("/overview");
+    if (page === "Notes") navigate("/notes");
   };
 
-  // Simple logout handler
-  const handleLogout = () => {
-    setUser(null);
-  };
-
-  // If not logged in, show login or register page
-  if (!user) {
-    return showRegister ? (
-      <Register
-        onRegister={(username) => {
-          setUser({ name: username });
-          setShowRegister(false);
-        }}
-        goToLogin={() => setShowRegister(false)}
-      />
-    ) : (
-      <Login onLogin={handleLogin} goToRegister={() => setShowRegister(true)} />
-    );
-  }
-
-  // Main notes app
   return (
     <div className="app-wrapper">
-      {/* Sidebar for folders */}
-      <Sidebar
-        folders={folders}
-        activeFolder={activeFolder}
-        setActiveFolder={setActiveFolder}
-        onLogout={handleLogout}
-      />
-
-      <main className="main-content">
-        <Header
-          activeFolder={activeFolder}
-          search={search}
-          setSearch={setSearch}
-          user={user}
-          onLogout={handleLogout}
-        />
-
-        {/* Sticky NoteInput for folders other than All Notes */}
-        {activeFolder !== "All Notes" && (
-          <div className="note-input-wrapper sticky">
-            <NoteInput
-              activeFolder={activeFolder}
-              onNoteAdded={() => setRefresh((r) => r + 1)}
-            />
-          </div>
-        )}
-
-        <NoteList activeFolder={activeFolder} search={search} refresh={refresh} />
-      </main>
-
-      {/* Sidebar for page navigation */}
-      <Sidebar activePage={activePage} setActivePage={setActivePage} />
+      <Sidebar activePage={activePage} setActivePage={handlePageChange} />
 
       <div
         className="main-area"
         style={{ display: "flex", flexDirection: "column", flex: 1 }}
       >
-        <Header />
+        <Header search={search} setSearch={setSearch} />
+
         <div className="main-content">
-          {activePage === "Overview" && <Overview />}
-          {activePage === "Notes" && (
-            <Notes search={search} setSearch={setSearch} />
-          )}
+          <Routes>
+            <Route path="/overview" element={<Overview />} />
+            <Route
+              path="/notes"
+              element={<Notes search={search} setSearch={setSearch} />}
+            />
+            {/* Redirect unknown routes to Overview */}
+            <Route path="*" element={<Navigate to="/overview" />} />
+          </Routes>
         </div>
       </div>
     </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <Router>
+      <AppWrapper />
+    </Router>
+  );
+}

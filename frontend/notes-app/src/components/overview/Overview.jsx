@@ -122,26 +122,45 @@ function Overview() {
         </div>
       </div>
 
-      {/* Graph */}
-      <div className="categories-graph">
-        <ResponsiveContainer width="100%" height={150}>
-          <LineChart
-            data={categories}
-            margin={{ top: 10, right: 20, left: 0, bottom: 5 }}
-          >
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="count"
-              stroke="#A1866F"
-              strokeWidth={2}
-              dot={{ r: 4 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+{/* Graph */}
+<div className="categories-graph">
+  {categories.length > 0 ? (
+    <ResponsiveContainer width="100%" height={150}>
+      <LineChart
+        data={categories}
+        margin={{ top: 10, right: 20, left: 0, bottom: 5 }}
+      >
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Line
+          type="monotone"
+          dataKey="count"
+          stroke="#A1866F"
+          strokeWidth={2}
+          dot={{ r: 4 }}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  ) : (
+    <div
+      style={{
+        width: "100%",
+        height: "150px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "#999",
+        fontStyle: "italic",
+        border: "1px dashed #ccc",
+        borderRadius: "8px",
+      }}
+    >
+      No categories yet. Add a category to see the graph.
+    </div>
+  )}
+</div>
+
 
       {/* Modal */}
       <AddCategoryModal
