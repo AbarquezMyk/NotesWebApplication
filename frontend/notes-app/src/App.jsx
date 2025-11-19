@@ -1,24 +1,27 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
-import Header from "./components/Header";
+import Header from "./components/header/Header";
 import NoteInput from "./components/NoteInput";
 import NoteList from "./components/NoteList";
 import Login from "./components/Login";
 import Register from "./components/Register";
 
-function App() {
-  const [user, setUser] = useState(null); // null means not logged in
-  const [showRegister, setShowRegister] = useState(false); // toggle register page
-import Header from "./components/header/Header";
 import Notes from "./components/notes/Notes";
 import Overview from "./components/overview/Overview";
 import "./App.css";
 
 function App() {
+  const [user, setUser] = useState(null); // null means not logged in
+  const [showRegister, setShowRegister] = useState(false); // toggle register page
   const [activePage, setActivePage] = useState(
     () => localStorage.getItem("activePage") || "Overview"
   );
   const [search, setSearch] = useState("");
+
+  // Example state for folders/notes
+  const [folders, setFolders] = useState(["All Notes", "Work", "Personal"]);
+  const [activeFolder, setActiveFolder] = useState("All Notes");
+  const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
     localStorage.setItem("activePage", activePage);
@@ -45,16 +48,14 @@ function App() {
         goToLogin={() => setShowRegister(false)}
       />
     ) : (
-      <Login
-        onLogin={handleLogin}
-        goToRegister={() => setShowRegister(true)}
-      />
+      <Login onLogin={handleLogin} goToRegister={() => setShowRegister(true)} />
     );
   }
 
   // Main notes app
   return (
     <div className="app-wrapper">
+      {/* Sidebar for folders */}
       <Sidebar
         folders={folders}
         activeFolder={activeFolder}
@@ -83,13 +84,20 @@ function App() {
 
         <NoteList activeFolder={activeFolder} search={search} refresh={refresh} />
       </main>
+
+      {/* Sidebar for page navigation */}
       <Sidebar activePage={activePage} setActivePage={setActivePage} />
 
-      <div className="main-area" style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+      <div
+        className="main-area"
+        style={{ display: "flex", flexDirection: "column", flex: 1 }}
+      >
         <Header />
         <div className="main-content">
           {activePage === "Overview" && <Overview />}
-          {activePage === "Notes" && <Notes search={search} setSearch={setSearch} />}
+          {activePage === "Notes" && (
+            <Notes search={search} setSearch={setSearch} />
+          )}
         </div>
       </div>
     </div>
