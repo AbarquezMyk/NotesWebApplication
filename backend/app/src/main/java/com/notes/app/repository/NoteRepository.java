@@ -6,4 +6,6 @@ import com.notes.app.entity.Note;
 
 public interface NoteRepository extends JpaRepository<Note, Long> {
     List<Note> findByFolder(String folder);
+
+    long countByFolder(String folder);   // 🔥 ADD THIS
 }

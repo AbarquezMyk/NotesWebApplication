@@ -1,18 +1,37 @@
 import React, { useState } from "react";
-import paperImg from "../../assets/imgs/paper.png"; // adjust path if needed
+import paperImg from "../../assets/imgs/paper.png";
 
 function AddCategoryModal({ show, onClose, onAdd }) {
   const [categoryName, setCategoryName] = useState("");
 
   if (!show) return null;
 
-  const handleAdd = () => {
-    if (categoryName.trim()) {
-      onAdd(categoryName.trim());
+const handleAdd = async () => {
+  if (!categoryName.trim()) return;
+
+  try {
+    const res = await fetch("http://localhost:8080/api/categories/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: categoryName }),
+    });
+
+    if (res.ok) {
+      // no need to call onAdd with name, just trigger fetchCategories in Overview
+      onAdd(categoryName);  // Optional: keep to trigger state update
       setCategoryName("");
       onClose();
+    } else if (res.status === 409) {
+      alert("Category already exists!");
+    } else {
+      alert("Failed to add category!");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    alert("Error connecting to server!");
+  }
+};
+
 
   return (
     <div
@@ -29,7 +48,6 @@ function AddCategoryModal({ show, onClose, onAdd }) {
         zIndex: 2000,
       }}
     >
-      {/* Paper Container */}
       <div
         style={{
           position: "relative",
@@ -48,17 +66,15 @@ function AddCategoryModal({ show, onClose, onAdd }) {
             top: "160px",
             left: "50%",
             transform: "translateX(-50%)",
+            textAlign: "center",
           }}
         >
-          <h2
-            style={{
-              fontFamily: "'Indie Flower', cursive", // same handwriting style
-              fontSize: "1.5rem",
-              color: "#3c2f2f",
-              margin: 0,
-              textAlign: "center",
-            }}
-          >
+          <h2 style={{
+            fontFamily: "'Indie Flower', cursive",
+            fontSize: "1.5rem",
+            color: "#3c2f2f",
+            margin: 0,
+          }}>
             Add Category
           </h2>
         </div>
@@ -68,8 +84,9 @@ function AddCategoryModal({ show, onClose, onAdd }) {
           style={{
             position: "absolute",
             top: "230px",
-            left: "52%",
+            left: "50%",
             transform: "translateX(-50%)",
+            width: "70%",
           }}
         >
           <input
@@ -78,14 +95,14 @@ function AddCategoryModal({ show, onClose, onAdd }) {
             value={categoryName}
             onChange={(e) => setCategoryName(e.target.value)}
             style={{
-              width: "70%",
+              width: "100%",
               padding: "10px",
               border: "none",
               outline: "none",
-              fontFamily: "'Indie Flower', cursive", // same as heading
+              fontFamily: "'Indie Flower', cursive",
               fontSize: "1.1rem",
               textAlign: "center",
-              backgroundColor: "transparent", // see paper lines
+              backgroundColor: "transparent",
               color: "#3c2f2f",
             }}
           />
@@ -100,6 +117,7 @@ function AddCategoryModal({ show, onClose, onAdd }) {
             transform: "translateX(-50%)",
             display: "flex",
             gap: "20px",
+            justifyContent: "center",
           }}
         >
           <button

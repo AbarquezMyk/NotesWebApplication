@@ -1,13 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { FiFolder } from "react-icons/fi";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
-import AddCategoryModal from "./AddCategoryModal"; // modal component
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts";
+import AddCategoryModal from "./AddCategoryModal";
 
 const COLORS = [
   "#A1866F", "#C69C6D", "#8C5E3C", "#D8C3A5", "#BFA67A",
-  "#E1C699", "#9B7A55", "#7F5A40", "#B78C68", "#D4A373"
+  "#E1C699", "#9B7A55", "#7F5A40", "#B78C68", "#D4A373",
 ];
 
+// Generate a consistent color per category
 const getColorForCategory = (name) => {
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
@@ -20,37 +28,48 @@ function Overview() {
   const [categories, setCategories] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
 
+  // Load categories on page load
   useEffect(() => {
     fetchCategories();
   }, []);
 
+  // Fetch categories from backend
   const fetchCategories = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/notes/read");
+      const res = await fetch(
+        "http://localhost:8080/api/categories/all-with-count"
+      );
+
+      if (!res.ok) throw new Error("Failed to fetch");
+
       const data = await res.json();
-
-      const categoryCounts = {};
-      (data || []).forEach((note) => {
-        categoryCounts[note.folder] = (categoryCounts[note.folder] || 0) + 1;
-      });
-
-      const categoryArray = Object.keys(categoryCounts).map((cat) => ({
-        name: cat,
-        count: categoryCounts[cat],
-      }));
-
-      setCategories(categoryArray);
+      setCategories(data);
     } catch (err) {
-      console.error("Failed to fetch notes:", err);
+      console.error("Failed to fetch categories:", err);
     }
   };
 
-  const handleAddCategory = (name) => {
+  // Add new category → save backend → refresh list
+  const handleAddCategory = async (name) => {
     if (!name.trim()) return;
-    if (categories.some(c => c.name.toLowerCase() === name.toLowerCase())) return; // prevent duplicates
 
-    const newCategory = { name, count: 0 };
-    setCategories(prev => [...prev, newCategory]);
+    try {
+      const res = await fetch(
+        "http://localhost:8080/api/categories/create",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name }),
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to add category");
+
+      await fetchCategories(); // refresh UI instantly
+      setShowAddModal(false);
+    } catch (err) {
+      console.error("Failed to add category:", err);
+    }
   };
 
   return (
@@ -58,16 +77,21 @@ function Overview() {
       <h2 className="categories-header">Categories</h2>
 
       <div className="categories-grid">
-        {categories.map((cat, index) => (
+        {/* Existing categories */}
+        {categories.map((cat) => (
           <div
-            key={index}
+            key={cat.id}
             className="category-card"
-            style={{ borderTop: `4px solid ${getColorForCategory(cat.name)}` }}
+            style={{
+              borderTop: `4px solid ${getColorForCategory(cat.name)}`,
+            }}
           >
             <div className="category-card-content">
               <div
                 className="category-icon"
-                style={{ backgroundColor: getColorForCategory(cat.name) }}
+                style={{
+                  backgroundColor: getColorForCategory(cat.name),
+                }}
               >
                 <FiFolder size={18} color="#fff" />
               </div>
@@ -78,25 +102,25 @@ function Overview() {
         ))}
 
         {/* Add Category Card */}
-                  <div
-            className="category-card"
-            style={{
-              borderTop: `4px solid #8C5E3C`, // colored top like other cards
-              cursor: "pointer",
-            }}
-            onClick={() => setShowAddModal(true)}
-          >
-            <div className="category-card-content">
-              <div
-                className="category-icon"
-                style={{ backgroundColor: "#8C5E3C" }}
-              >
-                +
-              </div>
-              <p className="category-name">Add Category</p>
+        <div
+          className="category-card"
+          style={{
+            borderTop: "4px solid #8C5E3C",
+            cursor: "pointer",
+          }}
+          onClick={() => setShowAddModal(true)}
+        >
+          <div className="category-card-content">
+            <div
+              className="category-icon"
+              style={{ backgroundColor: "#8C5E3C" }}
+            >
+              +
             </div>
+            <p className="category-name">Add Category</p>
           </div>
-                </div>
+        </div>
+      </div>
 
       {/* Graph */}
       <div className="categories-graph">
@@ -119,7 +143,7 @@ function Overview() {
         </ResponsiveContainer>
       </div>
 
-      {/* Add Category Modal */}
+      {/* Modal */}
       <AddCategoryModal
         show={showAddModal}
         onClose={() => setShowAddModal(false)}
