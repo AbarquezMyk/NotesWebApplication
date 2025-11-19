@@ -5,6 +5,7 @@ import { FiEdit, FiTrash2, FiX, FiSave, FiArrowLeft } from "react-icons/fi";
 import "./Notes.css";
 import noteCardImg from "../../assets/imgs/notecard.png";
 
+
 // -------------------- COLORS ----------------------
 const COLORS = [
   "#A1866F", "#C69C6D", "#8C5E3C", "#D8C3A5", "#BFA67A",

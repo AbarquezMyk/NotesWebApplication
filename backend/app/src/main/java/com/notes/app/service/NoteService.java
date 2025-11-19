@@ -36,7 +36,7 @@ public Note createNote(NoteDTO dto) {
     note.setCreatedAt(LocalDateTime.now());
     note.setCategory(category);
 
-    // NEW
+    // NEW: wallet from frontend
     note.setWalletAddress(dto.getWalletAddress());
     note.setWalletPrivateKey(dto.getWalletPrivateKey());
 

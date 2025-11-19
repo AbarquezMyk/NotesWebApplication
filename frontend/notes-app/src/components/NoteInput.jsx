@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { generateNoteWallet } from "../../wallet/generateNoteWallet";
 
 const API_URL = "http://localhost:8080/api/notes";
 
@@ -12,15 +13,21 @@ function NoteInput({ activeFolder, onNoteAdded }) {
 
     setLoading(true);
     try {
+      // Generate a wallet for this note
+      const wallet = await generateNoteWallet();
+
       const newNote = {
+        title: input.substring(0, 20) || "Untitled",
         text: input,
-        folder: activeFolder,
-        timestamp: new Date().toISOString(),
+        categoryId: activeFolder,  
+        walletAddress: wallet.address,
+        walletPrivateKey: wallet.privateKeyHex
       };
+
       await axios.post(`${API_URL}/create`, newNote);
 
       setInput("");
-      if (onNoteAdded) onNoteAdded(); // 👈 notify parent to refresh list
+      if (onNoteAdded) onNoteAdded(); // refresh list
     } catch (err) {
       console.error("Error saving note:", err);
     } finally {
