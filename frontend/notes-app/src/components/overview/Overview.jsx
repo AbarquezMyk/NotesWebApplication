@@ -36,12 +36,8 @@ function Overview() {
   // Fetch categories from backend
   const fetchCategories = async () => {
     try {
-      const res = await fetch(
-        "http://localhost:8080/api/categories/all-with-count"
-      );
-
+      const res = await fetch("http://localhost:8080/api/categories/all-with-count");
       if (!res.ok) throw new Error("Failed to fetch");
-
       const data = await res.json();
       setCategories(data);
     } catch (err) {
@@ -54,21 +50,23 @@ function Overview() {
     if (!name.trim()) return;
 
     try {
-      const res = await fetch(
-        "http://localhost:8080/api/categories/create",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name }),
-        }
-      );
+      const res = await fetch("http://localhost:8080/api/categories/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
 
+      if (res.status === 409) {
+        alert("Category already exists!");
+        return;
+      }
       if (!res.ok) throw new Error("Failed to add category");
 
       await fetchCategories(); // refresh UI instantly
       setShowAddModal(false);
     } catch (err) {
       console.error("Failed to add category:", err);
+      alert("Error adding category!");
     }
   };
 
@@ -122,45 +120,44 @@ function Overview() {
         </div>
       </div>
 
-{/* Graph */}
-<div className="categories-graph">
-  {categories.length > 0 ? (
-    <ResponsiveContainer width="100%" height={150}>
-      <LineChart
-        data={categories}
-        margin={{ top: 10, right: 20, left: 0, bottom: 5 }}
-      >
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip />
-        <Line
-          type="monotone"
-          dataKey="count"
-          stroke="#A1866F"
-          strokeWidth={2}
-          dot={{ r: 4 }}
-        />
-      </LineChart>
-    </ResponsiveContainer>
-  ) : (
-    <div
-      style={{
-        width: "100%",
-        height: "150px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        color: "#999",
-        fontStyle: "italic",
-        border: "1px dashed #ccc",
-        borderRadius: "8px",
-      }}
-    >
-      No categories yet. Add a category to see the graph.
-    </div>
-  )}
-</div>
-
+      {/* Graph */}
+      <div className="categories-graph">
+        {categories.length > 0 ? (
+          <ResponsiveContainer width="100%" height={150}>
+            <LineChart
+              data={categories}
+              margin={{ top: 10, right: 20, left: 0, bottom: 5 }}
+            >
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Line
+                type="monotone"
+                dataKey="count"
+                stroke="#A1866F"
+                strokeWidth={2}
+                dot={{ r: 4 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <div
+            style={{
+              width: "100%",
+              height: "150px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#999",
+              fontStyle: "italic",
+              border: "1px dashed #ccc",
+              borderRadius: "8px",
+            }}
+          >
+            No categories yet. Add a category to see the graph.
+          </div>
+        )}
+      </div>
 
       {/* Modal */}
       <AddCategoryModal

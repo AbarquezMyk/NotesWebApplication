@@ -1,6 +1,10 @@
 package com.notes.app.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.notes.app.dto.CategoryDTO;
 import com.notes.app.entity.Category;
 import com.notes.app.service.CategoryService;
 import com.notes.app.service.NoteService;
@@ -15,32 +19,58 @@ import java.util.HashMap;
 public class CategoryController {
 
     private final CategoryService categoryService;
-    private final NoteService noteService;  // 🔥 Added
+    private final NoteService noteService;
 
     public CategoryController(CategoryService categoryService, NoteService noteService) {
         this.categoryService = categoryService;
-        this.noteService = noteService; // 🔥 Required
+        this.noteService = noteService;
     }
 
+    // READ ALL
     @GetMapping("/read")
-    public List<Category> getAll() {
-        return categoryService.getAllCategories();
+    public ResponseEntity<List<Category>> getAll() {
+        return ResponseEntity.ok(categoryService.getAllCategories());
     }
 
+    // CREATE (using DTO)
     @PostMapping("/create")
-    public Category create(@RequestBody Category category) {
-        return categoryService.createCategory(category.getName());
+    public ResponseEntity<?> create(@RequestBody CategoryDTO dto) {
+        try {
+            Category created = categoryService.createCategory(dto.getName());
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(Map.of("error", e.getMessage()));
+        }
     }
 
-    // 🔥 NEW: return categories with note counts
+    // READ ONE
+    @GetMapping("/read/{id}")
+    public ResponseEntity<Category> getById(@PathVariable Long id) {
+        Category category = categoryService.getCategoryById(id);
+        return (category == null)
+            ? ResponseEntity.notFound().build()
+            : ResponseEntity.ok(category);
+    }
+
+    // DELETE
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        categoryService.deleteCategory(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Categories with note counts
     @GetMapping("/all-with-count")
-    public List<Map<String, Object>> getAllWithCount() {
-        return categoryService.getAllCategories().stream().map(cat -> {
+    public ResponseEntity<List<Map<String, Object>>> getAllWithCount() {
+        List<Map<String, Object>> result = categoryService.getAllCategories().stream().map(cat -> {
             Map<String, Object> map = new HashMap<>();
             map.put("id", cat.getId());
             map.put("name", cat.getName());
-            map.put("count", noteService.countNotesByFolder(cat.getName())); 
+            map.put("count", noteService.countNotesByCategory(cat));
             return map;
         }).toList();
+
+        return ResponseEntity.ok(result);
     }
 }

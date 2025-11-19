@@ -8,21 +8,34 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.notes.app.entity.Note;
+import com.notes.app.entity.Category;
 import com.notes.app.repository.NoteRepository;
+import com.notes.app.repository.CategoryRepository;
 import com.notes.app.web.NotFoundException;
+import com.notes.app.dto.NoteDTO;
 
 @Service
 public class NoteService {
 
     private final NoteRepository noteRepository;
+    private final CategoryRepository categoryRepository;
 
-    public NoteService(NoteRepository noteRepository) {
+    public NoteService(NoteRepository noteRepository, CategoryRepository categoryRepository) {
         this.noteRepository = noteRepository;
+        this.categoryRepository = categoryRepository;
     }
 
-    // CREATE
-    public Note createNote(Note note) {
+    // CREATE using DTO
+    public Note createNote(NoteDTO dto) {
+        Category category = categoryRepository.findById(dto.getCategoryId())
+            .orElseThrow(() -> new NotFoundException("Category with id " + dto.getCategoryId() + " not found"));
+
+        Note note = new Note();
+        note.setTitle(dto.getTitle());
+        note.setText(dto.getText());
         note.setCreatedAt(LocalDateTime.now());
+        note.setCategory(category);
+
         return noteRepository.save(note);
     }
 
@@ -44,7 +57,7 @@ public class NoteService {
 
         if (updates.getTitle() != null) existing.setTitle(updates.getTitle());
         if (updates.getText() != null) existing.setText(updates.getText());
-        if (updates.getFolder() != null) existing.setFolder(updates.getFolder());
+        if (updates.getCategory() != null) existing.setCategory(updates.getCategory());
 
         return noteRepository.save(existing);
     }
@@ -58,8 +71,8 @@ public class NoteService {
         noteRepository.deleteById(id);
     }
 
-    // 🔥 NEW: count notes per category
-    public long countNotesByFolder(String folder) {
-        return noteRepository.countByFolder(folder);
+    // Count notes per category
+    public long countNotesByCategory(Category category) {
+        return noteRepository.countByCategory(category);
     }
 }
