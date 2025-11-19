@@ -42,7 +42,7 @@ public class NoteService {
         Note existing = noteRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Note with id " + id + " not found"));
 
-        if (updates.getTitle() != null) existing.setTitle(updates.getTitle());  // NEW
+        if (updates.getTitle() != null) existing.setTitle(updates.getTitle());
         if (updates.getText() != null) existing.setText(updates.getText());
         if (updates.getFolder() != null) existing.setFolder(updates.getFolder());
 
@@ -56,5 +56,10 @@ public class NoteService {
             throw new NotFoundException("Note with id " + id + " not found");
         }
         noteRepository.deleteById(id);
+    }
+
+    // 🔥 NEW: count notes per category
+    public long countNotesByFolder(String folder) {
+        return noteRepository.countByFolder(folder);
     }
 }
