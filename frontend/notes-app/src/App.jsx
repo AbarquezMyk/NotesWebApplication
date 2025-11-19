@@ -1,17 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-
-// Public Pages
 import Homepage from "./components/homepage/homepage";
 import Login from "./components/login/Login";
 import Register from "./components/login/Register";
-
-
-
+import AppWrapper from "./AppWrapper";
 
 export default function App() {
-  // Replace this with your actual authentication logic
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // Persist login state in localStorage
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    () => localStorage.getItem("isLoggedIn") === "true"
+  );
+
+  useEffect(() => {
+    localStorage.setItem("isLoggedIn", isLoggedIn);
+  }, [isLoggedIn]);
 
   return (
     <Router>
@@ -24,19 +26,23 @@ export default function App() {
               path="/login"
               element={<Login onLogin={() => setIsLoggedIn(true)} />}
             />
-            <Route path="/register" element={<Register />} />
-            {/* Redirect any unknown public routes to homepage */}
-            <Route path="*" element={<Navigate to="/" />} />
+            <Route
+              path="/register"
+              element={<Register onRegister={() => setIsLoggedIn(true)} />}
+            />
+            {/* Redirect any unknown path to /login */}
+            <Route path="*" element={<Navigate to="/login" />} />
           </>
         )}
 
         {/* Private Routes */}
         {isLoggedIn && (
           <>
-            {/* Redirect / to /overview */}
-            <Route path="/" element={<Navigate to="/overview" />} />
-            {/* All private pages inside AppWrapper */}
-            <Route path="/*" element={<AppWrapper />} />
+            {/* All private routes go under AppWrapper */}
+            <Route
+              path="/*"
+              element={<AppWrapper onLogout={() => setIsLoggedIn(false)} />}
+            />
           </>
         )}
       </Routes>

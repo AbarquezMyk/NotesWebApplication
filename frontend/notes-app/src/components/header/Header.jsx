@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { FiChevronDown } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
 
-function Header({ username }) {
+function Header({ username, onLogout }) {
   const [open, setOpen] = useState(false);
-  const navigate = useNavigate(); // <- useNavigate hook
 
   const handleLogout = () => {
-    // You can also clear any auth state here if you have one
-    navigate("/login"); // Redirect to login page
+    // Clear localStorage if you store login state
+    localStorage.removeItem("isLoggedIn");
+    // Call the parent logout function
+    if (onLogout) onLogout();
+    // No navigate needed — App.jsx handles route rendering
   };
 
   return (
