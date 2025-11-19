@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import "./App.css";
+import React, { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import NoteInput from "./components/NoteInput";
@@ -10,11 +9,20 @@ import Register from "./components/Register";
 function App() {
   const [user, setUser] = useState(null); // null means not logged in
   const [showRegister, setShowRegister] = useState(false); // toggle register page
-  const [search, setSearch] = useState("");
-  const [activeFolder, setActiveFolder] = useState("All Notes");
-  const [refresh, setRefresh] = useState(0);
+import Header from "./components/header/Header";
+import Notes from "./components/notes/Notes";
+import Overview from "./components/overview/Overview";
+import "./App.css";
 
-  const folders = ["All Notes", "School", "Personal", "Ideas"];
+function App() {
+  const [activePage, setActivePage] = useState(
+    () => localStorage.getItem("activePage") || "Overview"
+  );
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    localStorage.setItem("activePage", activePage);
+  }, [activePage]);
 
   // Simple login handler
   const handleLogin = (username) => {
@@ -75,6 +83,15 @@ function App() {
 
         <NoteList activeFolder={activeFolder} search={search} refresh={refresh} />
       </main>
+      <Sidebar activePage={activePage} setActivePage={setActivePage} />
+
+      <div className="main-area" style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+        <Header />
+        <div className="main-content">
+          {activePage === "Overview" && <Overview />}
+          {activePage === "Notes" && <Notes search={search} setSearch={setSearch} />}
+        </div>
+      </div>
     </div>
   );
 }

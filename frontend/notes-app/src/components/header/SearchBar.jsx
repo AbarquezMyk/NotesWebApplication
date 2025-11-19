@@ -1,17 +1,18 @@
 import React from "react";
 
-function Header({ activeFolder, search, setSearch }) {
+
+function SearchBar({ search, setSearch }) {
   return (
-    <header>
-      <h1>{activeFolder}</h1>
+    <div className="search-bar-wrapper">
+      <span className="search-icon">&#128269;</span>
       <input
         type="text"
         placeholder="Search notes..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-    </header>
+    </div>
   );
 }
 
-export default Header;
+export default SearchBar;
