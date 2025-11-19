@@ -1,28 +1,24 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import notaGif from "../../assets/imgs/Nota.gif"; // adjust path if needed
-
-export default function Homepage() {
+import notaGif from "../../assets/imgs/Nota.gif"; 
+export default function Homepage({ isLoggedIn }) {
   const navigate = useNavigate();
 
-  // Color palette
-  const colors = [
-    "#A1866F",
-    "#C69C6D",
-    "#8C5E3C",
-    "#D8C3A5",
-    "#BFA67A",
-    "#E1C699",
-    "#9B7A55",
-    "#7F5A40",
-    "#B78C68",
-    "#D4A373",
-  ];
+  const handleLogin = () => {
+    if (isLoggedIn) {
+      navigate("/overview");
+    } else {
+      navigate("/login");
+    }
+  };
 
-  const primary = colors[2];  // #8C5E3C
-  const secondary = colors[3]; // #D8C3A5
-  const accent = colors[1];    // #C69C6D
-  const textColor = "#3e3e3e"; // dark gray
+  const handleRegister = () => {
+    if (isLoggedIn) {
+      navigate("/overview"); 
+    } else {
+      navigate("/register"); 
+    }
+  };
 
   return (
     <div
@@ -32,7 +28,7 @@ export default function Homepage() {
         alignItems: "center",
         minHeight: "100vh",
         padding: "20px",
-        background: `linear-gradient(135deg, ${colors[0]}, ${colors[3]}, ${colors[5]}, ${colors[9]})`,
+        background: "linear-gradient(135deg, #A1866F, #D8C3A5, #E1C699, #D4A373)",
         backgroundSize: "400% 400%",
         animation: "gradientAnimation 15s ease infinite",
       }}
@@ -51,7 +47,7 @@ export default function Homepage() {
         style={{
           maxWidth: "600px",
           width: "100%",
-          backgroundColor: secondary,
+          backgroundColor: "#D8C3A5",
           borderRadius: "20px",
           boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
           padding: "40px 30px",
@@ -61,44 +57,28 @@ export default function Homepage() {
           textAlign: "center",
         }}
       >
-        {/* Logo */}
         <img
           src={notaGif}
           alt="NotaBene Logo"
           style={{ maxWidth: "180px", marginBottom: "25px" }}
         />
 
-        {/* Welcome Text */}
-        <h1
-          style={{
-            fontSize: "2rem",
-            color: primary,
-            marginBottom: "15px",
-          }}
-        >
+        <h1 style={{ fontSize: "2rem", color: "#8C5E3C", marginBottom: "15px" }}>
           Welcome to NotaBene
         </h1>
-        <p
-          style={{
-            fontSize: "1rem",
-            color: textColor,
-            marginBottom: "30px",
-            lineHeight: "1.6",
-          }}
-        >
+        <p style={{ fontSize: "1rem", color: "#3e3e3e", marginBottom: "30px", lineHeight: "1.6" }}>
           Organize your notes and folders easily. Track your ideas, tasks, and everything important—all in one place.
         </p>
 
-        {/* Buttons */}
         <div style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}>
           <button
-            onClick={() => navigate("/login")}
+            onClick={handleLogin}
             style={{
               padding: "12px 30px",
               fontSize: "1rem",
               borderRadius: "10px",
               border: "none",
-              backgroundColor: primary,
+              backgroundColor: "#8C5E3C",
               color: "#fff",
               cursor: "pointer",
               fontWeight: "600",
@@ -109,14 +89,14 @@ export default function Homepage() {
           </button>
 
           <button
-            onClick={() => navigate("/register")}
+            onClick={handleRegister}
             style={{
               padding: "12px 30px",
               fontSize: "1rem",
               borderRadius: "10px",
-              border: `2px solid ${accent}`,
-              backgroundColor: secondary,
-              color: primary,
+              border: "2px solid #C69C6D",
+              backgroundColor: "#D8C3A5",
+              color: "#8C5E3C",
               cursor: "pointer",
               fontWeight: "600",
               transition: "0.2s",
