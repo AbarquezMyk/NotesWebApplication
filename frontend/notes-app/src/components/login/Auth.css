@@ -290,3 +290,15 @@ input:-moz-autofill {
   box-shadow: 0 0 0px 1000px #FDF8F2 inset;
   -moz-text-fill-color: #000;
 }
+.two-column-form {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+}
+
+.column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

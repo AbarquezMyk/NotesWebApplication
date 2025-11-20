@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import AddNoteModal from "./AddNoteModal";
 import StatusModal from "../StatusModal";
+import SendFundsModal from "./SendFundsModal"; // <-- IMPORT ADDED
 import { FiEdit, FiTrash2, FiX, FiSave, FiArrowLeft } from "react-icons/fi";
 import "./Notes.css";
 import noteCardImg from "../../assets/imgs/notecard.png";
@@ -42,6 +43,8 @@ function Notes({ user }) {
   const [statusMessage, setStatusMessage] = useState("");
   const [statusConfirm, setStatusConfirm] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
+
+  const [sendFundsVisible, setSendFundsVisible] = useState(false); // <-- STATE ADDED
 
   const leftPageRef = useRef(null);
   const hiddenRef = useRef(null);
@@ -411,11 +414,11 @@ function Notes({ user }) {
         onConfirm={confirmDelete}
       />
 
-<SendFundsModal
-  visible={sendFundsVisible}
-  onClose={() => setSendFundsVisible(false)}
-  walletAddress={focusedNote?.walletAddress}
-/>
+      <SendFundsModal
+        visible={sendFundsVisible}
+        onClose={() => setSendFundsVisible(false)}
+        walletAddress={focusedNote?.walletAddress}
+      />
     </div>
   );
 }

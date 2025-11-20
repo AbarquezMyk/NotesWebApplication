@@ -57,41 +57,29 @@ export default function Homepage({ isLoggedIn }) {
       </style>
 
       {/* Floating Sticky Notes */}
-      {[
-        { top: "5%", left: "5%", width: 70, height: 70, delay: "0s" },
-        { top: "15%", left: "25%", width: 85, height: 85, delay: "0.5s" },
-        { top: "30%", left: "10%", width: 65, height: 65, delay: "1s" },
-        { top: "45%", left: "35%", width: 90, height: 90, delay: "1.2s" },
-        { top: "60%", left: "5%", width: 70, height: 70, delay: "1.5s" },
-        { top: "75%", left: "20%", width: 85, height: 85, delay: "2s" },
-        { top: "10%", right: "10%", width: 70, height: 70, delay: "0.7s" },
-        { top: "35%", right: "15%", width: 65, height: 65, delay: "1.3s" },
-        { top: "60%", right: "5%", width: 75, height: 75, delay: "1.8s" },
-        { top: "80%", right: "15%", width: 90, height: 90, delay: "2.5s" },
-      ].map((note, idx) => (
+      {[...Array(10)].map((_, idx) => (
         <div
           key={idx}
           className="sticky-note"
           style={{
-            top: note.top,
-            left: note.left,
-            right: note.right,
-            width: note.width,
-            height: note.height,
-            animationDelay: note.delay,
+            top: `${Math.random() * 80}%`,
+            left: `${Math.random() * 80}%`,
+            width: 50 + Math.random() * 40,
+            height: 50 + Math.random() * 40,
+            animationDelay: `${Math.random() * 2}s`,
           }}
         ></div>
       ))}
 
-      {/* Main Card */}
+      {/* Main Card (smaller) */}
       <div
         style={{
-          maxWidth: "600px",
-          width: "100%",
+          maxWidth: "400px", // smaller width
+          width: "90%",
           backgroundColor: "#D8C3A5",
           borderRadius: "20px",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
-          padding: "40px 30px",
+          boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
+          padding: "30px 20px", // reduced padding
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -102,31 +90,31 @@ export default function Homepage({ isLoggedIn }) {
         <img
           src={notaGif}
           alt="NotaBene Logo"
-          style={{ maxWidth: "500px" }}
+          style={{ maxWidth: "300px", marginBottom: "15px" }} // smaller logo
         />
 
-        <h1 style={{ fontSize: "2rem", color: "#8C5E3C", marginBottom: "10px" }}>
+        <h1 style={{ fontSize: "1.6rem", color: "#8C5E3C", marginBottom: "8px" }}>
           Welcome to NotaBene
         </h1>
 
         <p
           style={{
-            fontSize: "1rem",
+            fontSize: "0.95rem",
             color: "#3e3e3e",
-            marginBottom: "30px",
-            lineHeight: "1.6",
+            marginBottom: "20px",
+            lineHeight: "1.5",
           }}
         >
           Organize your notes and folders easily. Track your ideas, tasks, and
           everything important—all in one place.
         </p>
 
-        <div style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
           <button
             onClick={handleLogin}
             style={{
-              padding: "12px 30px",
-              fontSize: "1rem",
+              padding: "10px 25px",
+              fontSize: "0.95rem",
               borderRadius: "10px",
               border: "none",
               backgroundColor: "#8C5E3C",
@@ -142,8 +130,8 @@ export default function Homepage({ isLoggedIn }) {
           <button
             onClick={handleRegister}
             style={{
-              padding: "12px 30px",
-              fontSize: "1rem",
+              padding: "10px 25px",
+              fontSize: "0.95rem",
               borderRadius: "10px",
               border: "2px solid #C69C6D",
               backgroundColor: "#D8C3A5",

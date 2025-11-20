@@ -9,6 +9,7 @@ import {
   Tooltip,
 } from "recharts";
 import AddCategoryModal from "./AddCategoryModal";
+import StatusModal from "../StatusModal"; // <-- imported
 
 const COLORS = [
   "#A1866F", "#C69C6D", "#8C5E3C", "#D8C3A5", "#BFA67A",
@@ -27,6 +28,12 @@ function Overview() {
   const [categories, setCategories] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
 
+  // DELETE MODAL STATES
+  const [showStatus, setShowStatus] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [statusConfirm, setStatusConfirm] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState(null);
+
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -42,24 +49,32 @@ function Overview() {
     }
   };
 
-  // DELETE CATEGORY
-const handleDeleteCategory = async (id) => {
-  const confirmDelete = window.confirm("Are you sure you want to delete this category?");
-  if (!confirmDelete) return;
+  const triggerStatus = (msg, confirm = false, category = null) => {
+    setStatusMessage(msg);
+    setStatusConfirm(confirm);
+    setCategoryToDelete(category);
+    setShowStatus(true);
+  };
 
-  try {
-    const res = await fetch(`http://localhost:8080/api/categories/${id}`, {
-      method: "DELETE",
-    });
+  const handleDeleteCategory = async () => {
+    if (!categoryToDelete) return;
 
-    if (!res.ok) throw new Error("Failed to delete category");
+    try {
+      const res = await fetch(`http://localhost:8080/api/categories/${categoryToDelete.id}`, {
+        method: "DELETE",
+      });
 
-    await fetchCategories(); // refresh UI
-  } catch (err) {
-    console.error("Delete failed:", err);
-    alert("Error deleting category!");
-  }
-};
+      if (!res.ok) throw new Error("Failed to delete category");
+
+      await fetchCategories();
+      setShowStatus(false);
+      setCategoryToDelete(null);
+    } catch (err) {
+      console.error("Delete failed:", err);
+      setStatusMessage("Error deleting category!");
+      setStatusConfirm(false);
+    }
+  };
 
   const handleAddCategory = async (name) => {
     if (!name.trim()) return;
@@ -100,21 +115,20 @@ const handleDeleteCategory = async (id) => {
             }}
           >
             {/* DELETE BUTTON */}
-<button
-  onClick={() => handleDeleteCategory(cat.id)}
-  className="delete-btn"
-  style={{
-    position: "absolute",
-    top: "8px",
-    right: "8px",
-    background: "transparent",
-    border: "none",
-    cursor: "pointer",
-  }}
->
-  <FiTrash2 size={16} color={getColorForCategory(cat.name)} />
-</button>
-
+            <button
+              onClick={() => triggerStatus("Are you sure you want to delete this category?", true, cat)}
+              className="delete-btn"
+              style={{
+                position: "absolute",
+                top: "8px",
+                right: "8px",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              <FiTrash2 size={16} color={getColorForCategory(cat.name)} />
+            </button>
 
             <div className="category-card-content">
               <div
@@ -174,6 +188,15 @@ const handleDeleteCategory = async (id) => {
         show={showAddModal}
         onClose={() => setShowAddModal(false)}
         onAdd={handleAddCategory}
+      />
+
+      {/* DELETE STATUS MODAL */}
+      <StatusModal
+        show={showStatus}
+        message={statusMessage}
+        showButtons={statusConfirm}
+        onConfirm={handleDeleteCategory}
+        onClose={() => setShowStatus(false)}
       />
     </div>
   );
