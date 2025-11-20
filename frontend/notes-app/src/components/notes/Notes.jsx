@@ -4,7 +4,6 @@ import StatusModal from "../StatusModal";
 import { FiEdit, FiTrash2, FiX, FiSave, FiArrowLeft } from "react-icons/fi";
 import "./Notes.css";
 import noteCardImg from "../../assets/imgs/notecard.png";
-import SendFundsModal from "./SendFundsModal.jsx";  
 
 // -------------------- COLORS ----------------------
 const COLORS = [
@@ -23,10 +22,12 @@ const getColorForCategory = (name) => {
 // ==================================================
 //                    MAIN NOTES
 // ==================================================
-function Notes({ search, setSearch }) {
+function Notes({ user }) {
+  // ---------------- STATES ----------------
   const [notes, setNotes] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [activeCategory, setActiveCategory] = useState(null);
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [search, setSearch] = useState("");
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [newNoteText, setNewNoteText] = useState("");
@@ -37,17 +38,15 @@ function Notes({ search, setSearch }) {
   const [editText, setEditText] = useState("");
 
   const [focusedNote, setFocusedNote] = useState(null);
-
-  const leftPageRef = useRef(null);
-  const hiddenRef = useRef(null);
-
   const [showStatus, setShowStatus] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
   const [statusConfirm, setStatusConfirm] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
 
-  const [sendFundsVisible, setSendFundsVisible] = useState(false);
+  const leftPageRef = useRef(null);
+  const hiddenRef = useRef(null);
 
+  // ---------------- STATUS MODAL ----------------
   const triggerStatus = (msg) => {
     setStatusMessage(msg);
     setStatusConfirm(false);
@@ -66,17 +65,17 @@ function Notes({ search, setSearch }) {
     try {
       await fetch(`http://localhost:8080/api/notes/${noteToDelete.id}`, { method: "DELETE" });
       setNotes(prev => prev.filter(n => n.id !== noteToDelete.id));
-      setNoteToDelete(null);
       setFocusedNote(null);
-      setStatusConfirm(false);
+      setNoteToDelete(null);
       setStatusMessage("Note deleted!");
+      setStatusConfirm(false);
     } catch (err) {
       console.error("Delete failed:", err);
       setStatusMessage("Delete failed");
     }
   };
 
-  // Load notes & categories
+  // ---------------- FETCH NOTES & CATEGORIES ----------------
   useEffect(() => {
     fetchNotes();
     fetchCategories();
@@ -85,27 +84,17 @@ function Notes({ search, setSearch }) {
   const fetchNotes = async () => {
     try {
       const res = await fetch("http://localhost:8080/api/notes/read");
-
-      // 🔐 Handle HTTP errors like 500 cleanly
       if (!res.ok) {
         console.error("Failed to fetch notes. HTTP", res.status);
-        setNotes([]);              // keep notes as an array
+        setNotes([]);
         triggerStatus("Failed to fetch notes");
         return;
       }
-
       const data = await res.json();
-
-      // 🔐 Make absolutely sure we save an array in state
-      if (!Array.isArray(data)) {
-        console.error("Notes API did not return an array:", data);
-        setNotes([]);
-      } else {
-        setNotes(data);
-      }
+      setNotes(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch notes:", err);
-      setNotes([]);                // keep notes as an array
+      setNotes([]);
       triggerStatus("Failed to fetch notes");
     }
   };
@@ -118,77 +107,69 @@ function Notes({ search, setSearch }) {
         setCategories([{ id: 0, name: "All" }]);
         return;
       }
-
       const data = await res.json();
-      const normalized = Array.isArray(data) ? data : [];
-      // Store categories as objects
-      setCategories([{ id: 0, name: "All" }, ...normalized]);
+      setCategories([{ id: 0, name: "All" }, ...(Array.isArray(data) ? data : [])]);
     } catch (err) {
       console.error("Failed to fetch categories:", err);
       setCategories([{ id: 0, name: "All" }]);
     }
   };
 
-  // 🔐 Make sure we never call .filter on a non-array
-  const safeNotes = Array.isArray(notes) ? notes : [];
+  // ---------------- FILTER NOTES ----------------
+  const filteredNotes = notes.filter(note => {
+    const text = (note?.text || "").toLowerCase();
+    const title = (note?.title || "").toLowerCase();
+    const categoryName = (note?.category?.name || "").toLowerCase();
+    const searchLower = search.toLowerCase();
 
-  // FILTERED NOTES
-  const filteredNotes = safeNotes.filter(
-    note =>
-      (!activeCategory || note?.category?.name === activeCategory) &&
-      (note?.text || "").toLowerCase().includes((search || "").toLowerCase())
-  );
+    const matchesSearch =
+      text.includes(searchLower) ||
+      title.includes(searchLower) ||
+      categoryName.includes(searchLower);
 
-  // ADD NOTE
-// ADD NOTE
-const handleAddNote = async () => {
-  if (!newNoteTitle?.trim() || !newNoteText?.trim() || !newNoteCategory) {
-    triggerStatus("Missing fields");
-    return;
-  }
+    const matchesCategory =
+      activeCategory === "All" || categoryName === activeCategory.toLowerCase();
 
-  // ✅ generate wallet here
-  const { generateSimpleWallet } = await import("../../wallet/generateSimpleWallet.js");
-  const wallet = generateSimpleWallet();
+    return matchesSearch && matchesCategory;
+  });
 
-  try {
-    const res = await fetch("http://localhost:8080/api/notes/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: newNoteTitle,
-        text: newNoteText,
-        categoryId: newNoteCategory.id,
-
-        // 🔥 NEW FIELDS sent to backend
-        walletAddress: wallet.walletAddress,
-        walletPrivateKey: wallet.walletPrivateKey
-      })
-    });
-
-    const savedNote = await res.json();
-
-    setNotes(prev => [...prev, savedNote]);
-
-    if (savedNote?.category && !categories.find(c => c.id === savedNote.category.id)) {
-      setCategories(prev => [...prev, savedNote.category]);
+  // ---------------- ADD NOTE ----------------
+  const handleAddNote = async () => {
+    if (!newNoteTitle?.trim() || !newNoteText?.trim() || !newNoteCategory) {
+      triggerStatus("Missing fields");
+      return;
     }
+    try {
+      const res = await fetch("http://localhost:8080/api/notes/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newNoteTitle,
+          text: newNoteText,
+          categoryId: newNoteCategory.id
+        })
+      });
 
-    triggerStatus("Note added!");
-    setNewNoteTitle("");
-    setNewNoteText("");
-    setNewNoteCategory(savedNote.category);
-    setShowAddModal(false);
-  } catch (err) {
-    console.error("Failed to add note:", err);
-    triggerStatus("Add failed");
-  }
-};
+      const savedNote = await res.json();
+      setNotes(prev => [...prev, savedNote]);
+      if (!categories.find(c => c.id === savedNote.category.id)) {
+        setCategories(prev => [...prev, savedNote.category]);
+      }
+      triggerStatus("Note added!");
+      setNewNoteTitle("");
+      setNewNoteText("");
+      setNewNoteCategory(savedNote.category);
+      setShowAddModal(false);
+    } catch (err) {
+      console.error("Failed to add note:", err);
+      triggerStatus("Add failed");
+    }
+  };
 
-  // EDIT NOTE
+  // ---------------- EDIT NOTE ----------------
   const handleEdit = (note) => {
     setEditingNoteId(note.id);
-    setEditText(note.text);
+    setEditText(note.text || "");
   };
 
   const handleSaveEdit = async (id) => {
@@ -199,6 +180,7 @@ const handleAddNote = async () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: editText })
       });
+
       const updatedNote = await res.json();
       setNotes(prev => prev.map(n => (n.id === id ? updatedNote : n)));
       setEditingNoteId(null);
@@ -211,13 +193,17 @@ const handleAddNote = async () => {
     }
   };
 
-  // NOTEBOOK PAGE SPLIT
+  // ---------------- NOTEBOOK PAGE SPLIT ----------------
   const splitTextDynamic = (text) => {
-    if (!leftPageRef.current || !hiddenRef.current) return { left: text, right: "" };
+    if (!leftPageRef.current || !hiddenRef.current)
+      return { left: text, right: "" };
+
     const words = (text || "").split(" ");
     let leftText = "";
     let rightText = "";
+
     hiddenRef.current.innerText = "";
+
     for (let word of words) {
       hiddenRef.current.innerText += word + " ";
       if (hiddenRef.current.scrollHeight > leftPageRef.current.clientHeight) {
@@ -226,24 +212,30 @@ const handleAddNote = async () => {
         leftText += word + " ";
       }
     }
+
     return { left: leftText.trim(), right: rightText.trim() };
   };
 
   const { left, right } = focusedNote
-    ? splitTextDynamic(editingNoteId === focusedNote.id ? editText : focusedNote.text)
+    ? splitTextDynamic(
+        editingNoteId === focusedNote.id ? editText : focusedNote.text || ""
+      )
     : { left: "", right: "" };
 
+  // ---------------- RENDER ----------------
   return (
     <div className="notes-container">
+      {/* SEARCH BAR */}
       <div className="search-bar-wrapper">
         <input
           type="text"
           placeholder="Search notes..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
+      {/* CATEGORIES */}
       <div className="folders">
         {categories.map(cat => (
           <button
@@ -261,6 +253,7 @@ const handleAddNote = async () => {
         </div>
       </div>
 
+      {/* NOTES */}
       <div className="note-list">
         {filteredNotes.length === 0 ? (
           <div className="empty">No notes found.</div>
@@ -279,21 +272,32 @@ const handleAddNote = async () => {
             >
               <div
                 className="note-folder"
-                style={{ backgroundColor: getColorForCategory(note?.category?.name || "") }}
+                style={{
+                  backgroundColor: getColorForCategory(
+                    note?.category?.name || ""
+                  )
+                }}
               >
-                {note?.category?.name}
+                {note?.category?.name || "No Category"}
               </div>
+
               <div className="note-info">
-                <div className="note-card-content">{note.text}</div>
+                <div className="note-card-content">
+                  {note?.text || ""}
+                </div>
               </div>
             </div>
           ))
         )}
       </div>
 
+      {/* FOCUSED NOTE OVERLAY */}
       {focusedNote && (
         <>
-          <div className="overlay-backdrop" onClick={() => setFocusedNote(null)}></div>
+          <div
+            className="overlay-backdrop"
+            onClick={() => setFocusedNote(null)}
+          ></div>
 
           <div className="note-card-overlay notebook-overlay">
             <button
@@ -305,8 +309,7 @@ const handleAddNote = async () => {
                 border: "none",
                 borderRadius: "6px",
                 padding: "5px",
-                cursor: "pointer",
-                transition: "all 0.2s ease-in-out",
+                cursor: "pointer"
               }}
               onMouseEnter={e => (e.target.style.background = "#8C5E3C")}
               onMouseLeave={e => (e.target.style.background = "#A1866F")}
@@ -317,54 +320,52 @@ const handleAddNote = async () => {
             <div className="notebook-content-wrapper">
               <div
                 className="zoom-note-folder"
-                style={{ backgroundColor: getColorForCategory(focusedNote?.category?.name || "") }}
+                style={{
+                  backgroundColor: getColorForCategory(
+                    focusedNote?.category?.name || ""
+                  )
+                }}
               >
-                {focusedNote?.category?.name}
+                {focusedNote?.category?.name || "No Category"}
               </div>
 
               <div className="zoom-note-actions">
-  {editingNoteId === focusedNote.id ? (
-    <>
-      <button className="edit-btn" onClick={() => handleSaveEdit(focusedNote.id)}>
-        <FiSave size={18} />
-      </button>
-      <button className="back-btn" onClick={() => setEditingNoteId(null)}>
-        <FiArrowLeft size={18} />
-      </button>
-    </>
-  ) : (
-    <>
-      <button
-        className="send-funds-btn"
-        onClick={() => setSendFundsVisible(true)}
-        style={{
-          background: "#A1866F",
-          color: "white",
-          borderRadius: "6px",
-          padding: "6px 10px",
-          marginRight: "10px",
-          cursor: "pointer"
-        }}
-      >
-        Send Funds
-      </button>
+                {editingNoteId === focusedNote.id ? (
+                  <>
+                    <button
+                      className="edit-btn"
+                      onClick={() => handleSaveEdit(focusedNote.id)}
+                    >
+                      <FiSave size={18} />
+                    </button>
+                    <button
+                      className="back-btn"
+                      onClick={() => setEditingNoteId(null)}
+                    >
+                      <FiArrowLeft size={18} />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className="edit-btn"
+                      onClick={() => handleEdit(focusedNote)}
+                    >
+                      <FiEdit size={18} />
+                    </button>
 
-      <button className="edit-btn" onClick={() => handleEdit(focusedNote)}>
-        <FiEdit size={18} />
-      </button>
-
-      <button
-        className="delete-btn"
-        onClick={(e) => {
-          e.preventDefault();
-          handleDeleteClick(focusedNote);
-        }}
-      >
-        <FiTrash2 size={18} />
-      </button>
-    </>
-  )}
-</div>
+                    <button
+                      className="delete-btn"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleDeleteClick(focusedNote);
+                      }}
+                    >
+                      <FiTrash2 size={18} />
+                    </button>
+                  </>
+                )}
+              </div>
 
               <div className="zoom-note-content">
                 <div className="left-page" ref={leftPageRef}>
@@ -378,6 +379,7 @@ const handleAddNote = async () => {
                     left
                   )}
                 </div>
+
                 {right && <div className="right-page">{right}</div>}
               </div>
             </div>
@@ -387,6 +389,7 @@ const handleAddNote = async () => {
         </>
       )}
 
+      {/* MODALS */}
       <AddNoteModal
         show={showAddModal}
         onClose={() => setShowAddModal(false)}
@@ -397,7 +400,7 @@ const handleAddNote = async () => {
         setNoteText={setNewNoteText}
         noteCategory={newNoteCategory}
         setNoteCategory={setNewNoteCategory}
-        categories={categories.filter(c => c.id !== 0)} // exclude "All" from modal
+        categories={categories.filter(c => c.id !== 0)}
       />
 
       <StatusModal

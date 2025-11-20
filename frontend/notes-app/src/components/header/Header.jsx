@@ -1,78 +1,30 @@
-import React, { useState } from "react";
-import { FiChevronDown } from "react-icons/fi";
-import { useWallet } from "../../context/WalletContext.jsx";
+import React from "react";
+import ProfileMenu from "./ProfileMenu";
 
-function Header({ username, onLogout }) {
-  const [open, setOpen] = useState(false);
-  const {
-    isAvailable,
-    isConnecting,
-    isConnected,
-    networkLabel,
-    shortenedAddress,
-    connectWallet,
-    disconnectWallet,
-    error: walletError,
-  } = useWallet();
-
-  const handleLogout = () => {
-    // Clear localStorage if you store login state
-    localStorage.removeItem("isLoggedIn");
-    // Call the parent logout function
-    if (onLogout) onLogout();
-    // No navigate needed — App.jsx handles route rendering
-  };
-
+export default function Header({ user, setUser, onLogout, setActivePage }) {
   return (
-    <header className="app-header">
-      <div className="wallet-section">
-        {!isAvailable && (
-          <span className="wallet-hint">Install the Lace extension to connect</span>
-        )}
-
-        {isAvailable && !isConnected && (
-          <button
-            className="wallet-button"
-            type="button"
-            onClick={connectWallet}
-            disabled={isConnecting}
-          >
-            {isConnecting ? "Connecting…" : "Connect Lace Wallet"}
-          </button>
-        )}
-
-        {isConnected && (
-          <button
-            type="button"
-            className="wallet-chip"
-            onClick={disconnectWallet}
-            title="Click to disconnect Lace"
-          >
-            <span className="wallet-dot" />
-            {networkLabel} · {shortenedAddress}
-          </button>
-        )}
-
-        {walletError && <small className="wallet-error">{walletError}</small>}
-      </div>
-
-      <div className="user-menu">
-        <button className="user-button" onClick={() => setOpen(!open)}>
-          Hello, <span className="username">@{username || "user"}</span>
-          <FiChevronDown />
-        </button>
-
-        {open && (
-          <ul className="dropdown-menu">
-            <li>Profile</li>
-            <li onClick={handleLogout} style={{ cursor: "pointer" }}>
-              Log Out
-            </li>
-          </ul>
-        )}
-      </div>
+    <header
+      style={{
+        height: "60px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "flex-end",
+        padding: "0 20px",
+        backgroundColor: "#BFA67A",
+        borderBottom: "1px solid #8C5E3C",
+      }}
+    >
+      {user && (
+        <ProfileMenu
+          username={user.username}
+          profilePic={user.profilePic || "/assets/imgs/1.png"} // 🔹 fallback default
+          setUser={setUser}
+          onLogout={onLogout}
+          setActivePage={setActivePage}
+          buttonColor="#C69C6D"
+          dropdownColor="#D8C3A5"
+        />
+      )}
     </header>
   );
 }
-
-export default Header;

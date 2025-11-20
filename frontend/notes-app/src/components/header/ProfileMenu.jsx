@@ -1,84 +1,82 @@
 import React, { useState } from "react";
-import { FiUser, FiLogOut } from "react-icons/fi";
 
-function ProfileMenu({ username, profilePic, onLogout }) {
+export default function ProfileMenu({
+  username,
+  profilePic,
+  setUser,
+  onLogout,
+  setActivePage,
+  buttonColor,
+  dropdownColor,
+}) {
   const [open, setOpen] = useState(false);
 
-  const handleLogout = () => {
-    if (onLogout) onLogout(); // just update login state
-    // No navigate() needed, App.jsx handles redirect automatically
-  };
-
   return (
-    <div className="user-menu" style={{ position: "relative" }}>
+    <div style={{ position: "relative" }}>
+      {/* Profile button */}
       <button
-        className="user-button"
         onClick={() => setOpen(!open)}
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "8px",
-          padding: "8px 12px",
-          borderRadius: "8px",
+          gap: "10px",
+          backgroundColor: buttonColor,
+          border: "none",
+          borderRadius: "20px",
+          padding: "5px 12px",
           cursor: "pointer",
         }}
       >
-        {profilePic && (
-          <img
-            src={profilePic}
-            alt="Profile"
-            className="profile-pic"
-            style={{ width: "32px", height: "32px", borderRadius: "50%" }}
-          />
-        )}
-        Hello, <span className="username">@{username}</span>
+        <img
+          src={profilePic}
+          alt="Profile"
+          style={{
+            width: 35,
+            height: 35,
+            borderRadius: "50%",
+            border: "2px solid #8C5E3C",
+          }}
+        />
+        <span style={{ fontWeight: 500, color: "#fff" }}>{username}</span>
       </button>
 
+      {/* Dropdown menu */}
       {open && (
-        <ul
-          className="dropdown-menu"
+        <div
           style={{
             position: "absolute",
-            top: "110%",
             right: 0,
-            listStyle: "none",
-            padding: "8px 0",
-            margin: 0,
-            backgroundColor: "#fff",
-            border: "1px solid #ccc",
+            marginTop: "10px",
+            backgroundColor: dropdownColor,
             borderRadius: "8px",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-            minWidth: "140px",
+            boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+            minWidth: "150px",
             zIndex: 1000,
           }}
         >
-          <li
-            style={{
-              padding: "8px 12px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            <FiUser size={16} /> Profile
-          </li>
-          <li
-            style={{
-              padding: "8px 12px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-            onClick={handleLogout}
-          >
-            <FiLogOut size={16} /> Log Out
-          </li>
-        </ul>
+          <ul style={{ listStyle: "none", margin: 0, padding: "10px" }}>
+            <li
+              style={{ padding: "8px", cursor: "pointer" }}
+              onClick={() => {
+                setActivePage("profile");
+                setOpen(false);
+              }}
+            >
+              Profile
+            </li>
+            <li
+              style={{ padding: "8px", cursor: "pointer" }}
+              onClick={() => {
+                onLogout();
+                setUser(null);
+                setOpen(false);
+              }}
+            >
+              Logout
+            </li>
+          </ul>
+        </div>
       )}
     </div>
   );
 }
-
-export default ProfileMenu;

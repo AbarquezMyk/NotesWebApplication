@@ -50,7 +50,7 @@ export default function Homepage({ isLoggedIn }) {
             border: 2px solid #e6d57a;
             box-shadow: 0 5px 10px rgba(0,0,0,0.15);
             border-radius: 8px;
-            opacity: 0.20; /* more transparent */
+            opacity: 0.20;
             animation: floatNote 5s ease-in-out infinite;
           }
         `}
@@ -76,8 +76,8 @@ export default function Homepage({ isLoggedIn }) {
             top: note.top,
             left: note.left,
             right: note.right,
-            width: `${note.width}px`,
-            height: `${note.height}px`,
+            width: note.width,
+            height: note.height,
             animationDelay: note.delay,
           }}
         ></div>
@@ -102,10 +102,10 @@ export default function Homepage({ isLoggedIn }) {
         <img
           src={notaGif}
           alt="NotaBene Logo"
-          style={{ maxWidth: "250px", marginBottom: "10px" }}
+          style={{ maxWidth: "500px" }}
         />
 
-        <h1 style={{ fontSize: "2rem", color: "#8C5E3C", marginBottom: "15px" }}>
+        <h1 style={{ fontSize: "2rem", color: "#8C5E3C", marginBottom: "10px" }}>
           Welcome to NotaBene
         </h1>
 

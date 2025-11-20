@@ -44,4 +44,5 @@ public class UserService {
         user.setWalletLinked(true);
         userRepository.save(user);
     }
+
 }
