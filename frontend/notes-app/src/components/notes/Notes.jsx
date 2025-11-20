@@ -410,6 +410,12 @@ function Notes({ user }) {
         showButtons={statusConfirm}
         onConfirm={confirmDelete}
       />
+
+<SendFundsModal
+  visible={sendFundsVisible}
+  onClose={() => setSendFundsVisible(false)}
+  walletAddress={focusedNote?.walletAddress}
+/>
     </div>
   );
 }
