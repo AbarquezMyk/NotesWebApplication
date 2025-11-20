@@ -119,4 +119,5 @@ public class User {
     public void setWalletLinked(boolean walletLinked) {
         this.walletLinked = walletLinked;
     }
+    
 }

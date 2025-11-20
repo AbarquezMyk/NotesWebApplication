@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Auth.css";
 import { useWallet } from "../../context/WalletContext.jsx";
 
-export default function Login({ onLogin, goToRegister }) {
+export default function Login({ onLogin }) {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -37,7 +39,7 @@ export default function Login({ onLogin, goToRegister }) {
       const msg = await response.text();
 
       if (response.ok && msg.includes("Login successful")) {
-        if (onLogin) onLogin(username); // Pass user info back to parent
+        if (onLogin) onLogin(username); // Pass username back to parent
       } else {
         setError(msg || "Invalid username or password.");
       }
@@ -103,7 +105,7 @@ export default function Login({ onLogin, goToRegister }) {
 
         <p className="switch">
           Don't have an account?{" "}
-          <span className="link" onClick={goToRegister}>
+          <span className="link" onClick={() => navigate("/register")}>
             Register
           </span>
         </p>
