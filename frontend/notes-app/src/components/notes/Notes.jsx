@@ -4,7 +4,7 @@ import StatusModal from "../StatusModal";
 import { FiEdit, FiTrash2, FiX, FiSave, FiArrowLeft } from "react-icons/fi";
 import "./Notes.css";
 import noteCardImg from "../../assets/imgs/notecard.png";
-
+import SendFundsModal from "./SendFundsModal.jsx";  
 
 // -------------------- COLORS ----------------------
 const COLORS = [
@@ -45,6 +45,8 @@ function Notes({ search, setSearch }) {
   const [statusMessage, setStatusMessage] = useState("");
   const [statusConfirm, setStatusConfirm] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
+
+  const [sendFundsVisible, setSendFundsVisible] = useState(false);
 
   const triggerStatus = (msg) => {
     setStatusMessage(msg);
@@ -321,32 +323,48 @@ const handleAddNote = async () => {
               </div>
 
               <div className="zoom-note-actions">
-                {editingNoteId === focusedNote.id ? (
-                  <>
-                    <button className="edit-btn" onClick={() => handleSaveEdit(focusedNote.id)}>
-                      <FiSave size={18} />
-                    </button>
-                    <button className="back-btn" onClick={() => setEditingNoteId(null)}>
-                      <FiArrowLeft size={18} />
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button className="edit-btn" onClick={() => handleEdit(focusedNote)}>
-                      <FiEdit size={18} />
-                    </button>
-                    <button
-                      className="delete-btn"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleDeleteClick(focusedNote);
-                      }}
-                    >
-                      <FiTrash2 size={18} />
-                    </button>
-                  </>
-                )}
-              </div>
+  {editingNoteId === focusedNote.id ? (
+    <>
+      <button className="edit-btn" onClick={() => handleSaveEdit(focusedNote.id)}>
+        <FiSave size={18} />
+      </button>
+      <button className="back-btn" onClick={() => setEditingNoteId(null)}>
+        <FiArrowLeft size={18} />
+      </button>
+    </>
+  ) : (
+    <>
+      <button
+        className="send-funds-btn"
+        onClick={() => setSendFundsVisible(true)}
+        style={{
+          background: "#A1866F",
+          color: "white",
+          borderRadius: "6px",
+          padding: "6px 10px",
+          marginRight: "10px",
+          cursor: "pointer"
+        }}
+      >
+        Send Funds
+      </button>
+
+      <button className="edit-btn" onClick={() => handleEdit(focusedNote)}>
+        <FiEdit size={18} />
+      </button>
+
+      <button
+        className="delete-btn"
+        onClick={(e) => {
+          e.preventDefault();
+          handleDeleteClick(focusedNote);
+        }}
+      >
+        <FiTrash2 size={18} />
+      </button>
+    </>
+  )}
+</div>
 
               <div className="zoom-note-content">
                 <div className="left-page" ref={leftPageRef}>
@@ -389,6 +407,12 @@ const handleAddNote = async () => {
         showButtons={statusConfirm}
         onConfirm={confirmDelete}
       />
+
+<SendFundsModal
+  visible={sendFundsVisible}
+  onClose={() => setSendFundsVisible(false)}
+  walletAddress={focusedNote?.walletAddress}
+/>
     </div>
   );
 }
