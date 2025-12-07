@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import AddNoteModal from "./AddNoteModal";
 import StatusModal from "../StatusModal";
+import SendFundsModal from "./SendFundsModal";
+
 import { FiEdit, FiTrash2, FiX, FiSave, FiArrowLeft } from "react-icons/fi";
 import "./Notes.css";
 import noteCardImg from "../../assets/imgs/notecard.png";
@@ -36,6 +38,8 @@ function Notes({ user }) {
 
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [editText, setEditText] = useState("");
+
+  const [sendFundsVisible, setSendFundsVisible] = useState(false);
 
   const [focusedNote, setFocusedNote] = useState(null);
   const [showStatus, setShowStatus] = useState(false);
