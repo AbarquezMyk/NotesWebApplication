@@ -286,9 +286,9 @@
 /* Close button */
 .close-btn {
   position: absolute;
-  top: 20px;
+  top: 30px;
   right: 30px;
-  background: rgba(221,221,221,0.9);
+  background: rgba(94, 57, 37, 0.807);
   border: none;
   border-radius: 50%;
   padding: 6px;

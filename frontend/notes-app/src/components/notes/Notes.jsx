@@ -367,7 +367,7 @@ function Notes({ user }) {
                         setSendFundsVisible(true);
                       }}
                     >
-                      Add Tip
+                      Add Tip 💰
                     </button>
                   </>
 
