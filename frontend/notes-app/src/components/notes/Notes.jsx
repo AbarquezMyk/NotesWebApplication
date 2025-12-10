@@ -7,49 +7,23 @@ import "./Notes.css";
 import noteCardImg from "../../assets/imgs/notecard.png";
 import Settings from "./Settings";
 
-// -------------------- COLORS ----------------------
-const COLORS = [
-  "#A1866F", "#C69C6D", "#8C5E3C", "#D8C3A5", "#BFA67A",
-  "#E1C699", "#9B7A55", "#7F5A40", "#B78C68", "#D4A373"
-];
-
-const getColorForCategory = (name) => {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return COLORS[Math.abs(hash) % COLORS.length];
-};
-
-// ==================================================
-//                    MAIN NOTES
-// ==================================================
 function Notes({ user }) {
   const [notes, setNotes] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
-
   const [showAddModal, setShowAddModal] = useState(false);
   const [newNoteText, setNewNoteText] = useState("");
-  const [newNoteCategory, setNewNoteCategory] = useState(null);
   const [newNoteTitle, setNewNoteTitle] = useState("");
-
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [editText, setEditText] = useState("");
-
   const [focusedNote, setFocusedNote] = useState(null);
   const [showStatus, setShowStatus] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
   const [statusConfirm, setStatusConfirm] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
-
   const [sendFundsVisible, setSendFundsVisible] = useState(false);
-
   const leftPageRef = useRef(null);
   const hiddenRef = useRef(null);
 
-  // ---------------- STATUS MODAL ----------------
   const triggerStatus = (msg) => {
     setStatusMessage(msg);
     setStatusConfirm(false);
@@ -66,8 +40,10 @@ function Notes({ user }) {
   const confirmDelete = async () => {
     if (!noteToDelete) return;
     try {
-      await fetch(`http://localhost:8080/api/notes/${noteToDelete.id}`, { method: "DELETE" });
-      setNotes(prev => prev.filter(n => n.id !== noteToDelete.id));
+      await fetch(`http://localhost:8080/api/notes/${noteToDelete.id}`, {
+        method: "DELETE",
+      });
+      setNotes((prev) => prev.filter((n) => n.id !== noteToDelete.id));
       setFocusedNote(null);
       setNoteToDelete(null);
       setStatusMessage("Note deleted!");
@@ -78,18 +54,14 @@ function Notes({ user }) {
     }
   };
 
-  // ---------------- FETCH NOTES & CATEGORIES ----------------
   useEffect(() => {
     fetchNotes();
-    fetchCategories();
   }, []);
 
   const fetchNotes = async () => {
     try {
       const res = await fetch("http://localhost:8080/api/notes/read");
       if (!res.ok) {
-        console.error("Failed to fetch notes. HTTP", res.status);
-        setNotes([]);
         triggerStatus("Failed to fetch notes");
         return;
       }
@@ -97,48 +69,19 @@ function Notes({ user }) {
       setNotes(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch notes:", err);
-      setNotes([]);
       triggerStatus("Failed to fetch notes");
     }
   };
 
-  const fetchCategories = async () => {
-    try {
-      const res = await fetch("http://localhost:8080/api/categories/read");
-      if (!res.ok) {
-        console.error("Failed to fetch categories. HTTP", res.status);
-        setCategories([{ id: 0, name: "All" }]);
-        return;
-      }
-      const data = await res.json();
-      setCategories([{ id: 0, name: "All" }, ...(Array.isArray(data) ? data : [])]);
-    } catch (err) {
-      console.error("Failed to fetch categories:", err);
-      setCategories([{ id: 0, name: "All" }]);
-    }
-  };
-
-  // ---------------- FILTER NOTES ----------------
-  const filteredNotes = notes.filter(note => {
+  const filteredNotes = notes.filter((note) => {
     const text = (note?.text || "").toLowerCase();
     const title = (note?.title || "").toLowerCase();
-    const categoryName = (note?.category?.name || "").toLowerCase();
     const searchLower = search.toLowerCase();
-
-    const matchesSearch =
-      text.includes(searchLower) ||
-      title.includes(searchLower) ||
-      categoryName.includes(searchLower);
-
-    const matchesCategory =
-      activeCategory === "All" || categoryName === activeCategory.toLowerCase();
-
-    return matchesSearch && matchesCategory;
+    return text.includes(searchLower) || title.includes(searchLower);
   });
 
-  // ---------------- ADD NOTE ----------------
   const handleAddNote = async () => {
-    if (!newNoteTitle?.trim() || !newNoteText?.trim() || !newNoteCategory) {
+    if (!newNoteTitle.trim() || !newNoteText.trim()) {
       triggerStatus("Missing fields");
       return;
     }
@@ -146,22 +89,13 @@ function Notes({ user }) {
       const res = await fetch("http://localhost:8080/api/notes/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: newNoteTitle,
-          text: newNoteText,
-          categoryId: newNoteCategory.id
-        })
+        body: JSON.stringify({ title: newNoteTitle, text: newNoteText }),
       });
-
       const savedNote = await res.json();
-      setNotes(prev => [...prev, savedNote]);
-      if (!categories.find(c => c.id === savedNote.category.id)) {
-        setCategories(prev => [...prev, savedNote.category]);
-      }
+      setNotes((prev) => [...prev, savedNote]);
       triggerStatus("Note added!");
       setNewNoteTitle("");
       setNewNoteText("");
-      setNewNoteCategory(savedNote.category);
       setShowAddModal(false);
     } catch (err) {
       console.error("Failed to add note:", err);
@@ -169,7 +103,6 @@ function Notes({ user }) {
     }
   };
 
-  // ---------------- EDIT NOTE ----------------
   const handleEdit = (note) => {
     setEditingNoteId(note.id);
     setEditText(note.text || "");
@@ -181,11 +114,10 @@ function Notes({ user }) {
       const res = await fetch(`http://localhost:8080/api/notes/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: editText })
+        body: JSON.stringify({ text: editText }),
       });
-
       const updatedNote = await res.json();
-      setNotes(prev => prev.map(n => (n.id === id ? updatedNote : n)));
+      setNotes((prev) => prev.map((n) => (n.id === id ? updatedNote : n)));
       setEditingNoteId(null);
       setEditText("");
       setFocusedNote(updatedNote);
@@ -196,7 +128,6 @@ function Notes({ user }) {
     }
   };
 
-  // ---------------- NOTEBOOK SPLIT ----------------
   const splitTextDynamic = (text) => {
     if (!leftPageRef.current || !hiddenRef.current)
       return { left: text, right: "" };
@@ -219,22 +150,32 @@ function Notes({ user }) {
     return { left: leftText.trim(), right: rightText.trim() };
   };
 
-  const { left, right } = focusedNote
-    ? splitTextDynamic(
-        editingNoteId === focusedNote.id ? editText : focusedNote.text || ""
-      )
-    : { left: "", right: "" };
+  let left = "";
+  let right = "";
 
-  // ---------------- RENDER ----------------
+  if (focusedNote) {
+    const actualText =
+      editingNoteId === focusedNote.id ? editText : focusedNote.text || "";
+    if (leftPageRef.current && hiddenRef.current) {
+      const parts = splitTextDynamic(actualText);
+      left = parts.left;
+      right = parts.right;
+    } else {
+      left = actualText;
+    }
+  }
+
   return (
     <div className="notes-container">
-      {/* SEARCH BAR + SETTINGS */}
-      <div className="search-settings-wrapper" style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        marginBottom: "15px"
-      }}>
+      <div
+        className="search-settings-wrapper"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "15px",
+        }}
+      >
         <div className="search-bar-wrapper" style={{ flex: 1 }}>
           <input
             type="text"
@@ -247,54 +188,34 @@ function Notes({ user }) {
         <Settings />
       </div>
 
-      {/* CATEGORIES */}
       <div className="folders">
-        {categories.map(cat => (
-          <button
-            key={cat.id}
-            onClick={() => setActiveCategory(cat.name)}
-            className={activeCategory === cat.name ? "active-category" : ""}
-          >
-            {cat.name}
-          </button>
-        ))}
-
         <div className="add-note-btn" onClick={() => setShowAddModal(true)}>
           <div className="add-circle">+</div>
           <span>Add New Note</span>
         </div>
       </div>
 
-      {/* NOTES */}
       <div className="note-list">
         {filteredNotes.length === 0 ? (
           <div className="empty">No notes found.</div>
         ) : (
-          filteredNotes.map(note => (
+          filteredNotes.map((note) => (
             <div
               key={note.id}
               className="note-card"
-              onClick={() => setFocusedNote(note)}
-              style={{
-                backgroundImage: `url(${noteCardImg})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                color: "#2d2d2d"
+  onClick={() => setFocusedNote(note)}
+  style={{
+    backgroundImage: `url(${noteCardImg})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    color: "#ffffff",
+    fontWeight: "600",
+    textShadow: "0 1px 2px rgba(0,0,0,0.4)",
               }}
             >
-              <div
-                className="note-folder"
-                style={{
-                  backgroundColor: getColorForCategory(note?.category?.name || "")
-                }}
-              >
-                {note?.category?.name || "No Category"}
-              </div>
-
+              <div className="note-folder">All</div>
               <div className="note-info">
-                <div className="note-card-content">
-                  {note?.text || ""}
-                </div>
+                <div className="note-card-content">{note?.text || ""}</div>
               </div>
             </div>
           ))
@@ -307,30 +228,13 @@ function Notes({ user }) {
           <div className="overlay-backdrop" onClick={() => setFocusedNote(null)} />
 
           <div className="note-card-overlay notebook-overlay">
-            <button
-              className="close-btn"
-              onClick={() => setFocusedNote(null)}
-              style={{
-                background: "#A1866F",
-                color: "#fff",
-                border: "none",
-                borderRadius: "6px",
-                padding: "5px",
-                cursor: "pointer"
-              }}
-            >
+            <button className="close-btn" onClick={() => setFocusedNote(null)}>
               <FiX size={20} />
             </button>
 
             <div className="notebook-content-wrapper">
-              <div
-                className="zoom-note-folder"
-                style={{
-                  backgroundColor: getColorForCategory(focusedNote?.category?.name || "")
-                }}
-              >
-                {focusedNote?.category?.name || "No Category"}
-              </div>
+              <h2 className="zoom-note-title">{focusedNote.title}</h2>
+              <div className="zoom-note-folder">All</div>
 
               <div className="zoom-note-actions">
                 {editingNoteId === focusedNote.id ? (
@@ -338,7 +242,11 @@ function Notes({ user }) {
                     <button className="edit-btn" onClick={() => handleSaveEdit(focusedNote.id)}>
                       <FiSave size={18} />
                     </button>
-                    <button className="back-btn" onClick={() => setEditingNoteId(null)}>
+
+                    <button
+                      className="back-btn"
+                      onClick={() => setEditingNoteId(null)}
+                    >
                       <FiArrowLeft size={18} />
                     </button>
                   </>
@@ -387,17 +295,17 @@ function Notes({ user }) {
                   {editingNoteId === focusedNote.id ? (
                     <textarea
                       value={editText}
-                      onChange={e => setEditText(e.target.value)}
+                      onChange={(e) => setEditText(e.target.value)}
                       className="note-edit-textarea"
                     />
                   ) : (
-                    left
+                    <div>{left}</div>
                   )}
                 </div>
 
                 {right && (
                   <div className="right-page">
-                    {right}
+                    <div>{right}</div>
                   </div>
                 )}
               </div>
@@ -408,7 +316,6 @@ function Notes({ user }) {
         </>
       )}
 
-      {/* MODALS */}
       <AddNoteModal
         show={showAddModal}
         onClose={() => setShowAddModal(false)}
@@ -417,9 +324,9 @@ function Notes({ user }) {
         setNoteTitle={setNewNoteTitle}
         noteText={newNoteText}
         setNoteText={setNewNoteText}
-        noteCategory={newNoteCategory}
-        setNoteCategory={setNewNoteCategory}
-        categories={categories.filter(c => c.id !== 0)}
+        noteCategory={null}
+        setNoteCategory={() => {}}
+        categories={[]}
       />
 
       <StatusModal

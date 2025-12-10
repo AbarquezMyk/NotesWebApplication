@@ -1,0 +1,84 @@
+.modal {
+  position: relative;
+  width: 650px;
+  max-width: 95%;
+  min-height: 550px;
+  max-height: 90vh;
+  background-size: cover;
+  background-position: center;
+  border-radius: 20px;
+  padding: 20px 30px; /* moved content higher */
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow-y: auto;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+  font-family: 'Indie Flower', cursive;
+  color: #4A2F1D;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.modal h2 {
+  margin-bottom: 10px;
+  font-size: 1.4rem;   /* smaller heading */
+  font-weight: 600;
+  text-align: left;
+  position: relative;
+}
+
+.modal h2::after {
+  content: "";
+  display: block;
+  width: 50px;        /* smaller underline */
+  height: 2px;
+  background-color: #B78C68;
+  margin-top: 6px;
+  border-radius: 2px;
+}
+
+.modal input,
+.modal textarea {
+  width: 100%;
+  padding: 6px 10px;  /* smaller padding */
+  border: none;
+  background-color: transparent;
+  outline: none;
+  font-size: 0.95rem; /* smaller font for title */
+  text-align: left;
+}
+
+.modal textarea {
+  min-height: 180px;
+  max-height: 320px;
+  resize: vertical;
+  line-height: 1.5;
+  font-size: 1rem;
+  margin-bottom: 16px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end; /* buttons aligned right */
+  gap: 12px;
+  margin-top: auto;
+  width: 100%;
+}
+
+.modal-buttons button {
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: 0.2s;
+  color: #fff;
+}
+
+.modal-buttons .cancel-btn {
+  background-color: #D4A373;
+}
+
+.modal-buttons .save-btn {
+  background-color: #A1866F;
+}

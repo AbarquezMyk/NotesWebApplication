@@ -1,5 +1,5 @@
 import React from "react";
-import paperImg from "../../assets/imgs/AddNote.png";
+import paperImg from "../../assets/imgs/ntbk.png";
 
 function AddNoteModal({
   show,
@@ -9,9 +9,6 @@ function AddNoteModal({
   setNoteTitle,
   noteText,
   setNoteText,
-  noteCategory,
-  setNoteCategory,
-  categories = [],
 }) {
   if (!show) return null;
 
@@ -47,34 +44,36 @@ function AddNoteModal({
           backgroundSize: "cover",
           backgroundPosition: "center",
           borderRadius: "20px",
-          padding: "35px 30px",
+          padding: "20px 30px", // moved content higher
           display: "flex",
           flexDirection: "column",
           boxSizing: "border-box",
           overflowY: "auto",
           boxShadow: "0 15px 40px rgba(0,0,0,0.35)",
+          alignItems: "flex-start",
+          textAlign: "left",
         }}
       >
         {/* Header */}
         <h2
           style={{
-            marginBottom: "12px",
+            marginBottom: "10px",
             color: "#8C5E3C",
-            fontSize: "1.8rem",
-            fontWeight: "700",
-            textAlign: "center",
+            fontSize: "1.4rem", // smaller
+            fontWeight: "600",
+            textAlign: "left",
             fontFamily: "'Indie Flower', cursive",
             position: "relative",
           }}
         >
-          Add New Note
+          Create New Note
           <span
             style={{
               display: "block",
-              width: "60px",
-              height: "3px",
+              width: "50px", // smaller underline
+              height: "2px",
               backgroundColor: "#B78C68",
-              margin: "8px auto 0",
+              marginTop: "6px",
               borderRadius: "2px",
             }}
           />
@@ -88,16 +87,16 @@ function AddNoteModal({
           onChange={(e) => setNoteTitle(e.target.value)}
           style={{
             width: "100%",
-            padding: "10px 12px",
-            marginBottom: "14px",
+            padding: "6px 10px", // smaller padding
+            marginBottom: "10px",
             border: "none",
-            borderBottom: "2px dashed #B78C68",
-            fontSize: "1.1rem",
+            fontSize: "0.95rem", // smaller font
             color: "#4A2F1D",
             backgroundColor: "transparent",
             fontFamily: "'Indie Flower', cursive",
             boxSizing: "border-box",
             outline: "none",
+            textAlign: "left",
           }}
         />
 
@@ -111,77 +110,35 @@ function AddNoteModal({
             minHeight: "180px",
             maxHeight: "320px",
             overflowY: "auto",
-            padding: "10px 12px",
-            marginBottom: "18px",
+            padding: "8px 12px",
+            marginBottom: "16px",
             border: "none",
-            borderBottom: "2px dashed #B78C68",
-            fontSize: "1rem",
+            fontSize: "0.9rem",
             color: "#4A2F1D",
             backgroundColor: "transparent",
             fontFamily: "'Indie Flower', cursive",
             resize: "vertical",
-            lineHeight: "1.5",
+            lineHeight: "1.4",
             boxSizing: "border-box",
             outline: "none",
+            textAlign: "left",
           }}
         />
 
-        {/* Select Category */}
-        <label
-          style={{
-            marginBottom: "6px",
-            fontWeight: "600",
-            color: "#4A2F1D",
-            fontFamily: "'Indie Flower', cursive",
-          }}
-        >
-          Select Category
-        </label>
-        <select
-          value={noteCategory?.id || ""}
-          onChange={(e) => {
-            const selected = categories.find(
-              (c) => c.id === parseInt(e.target.value)
-            );
-            setNoteCategory(selected || null);
-          }}
-          style={{
-            width: "100%",
-            padding: "10px 12px",
-            marginBottom: "25px",
-            border: "none",
-            borderBottom: "2px dashed #B78C68",
-            fontSize: "1rem",
-            backgroundColor: "transparent",
-            color: "#4A2F1D",
-            fontFamily: "'Indie Flower', cursive",
-            boxSizing: "border-box",
-            outline: "none",
-            appearance: "none",
-          }}
-        >
-          <option value="" disabled>
-            Select a category
-          </option>
-          {categories
-            .filter((c) => c && c.name !== "All")
-            .map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-        </select>
-
         {/* Buttons */}
         <div
+          className="modal-buttons"
           style={{
             display: "flex",
             justifyContent: "flex-end",
             gap: "12px",
+            marginTop: "auto",
+            width: "100%",
           }}
         >
           <button
             onClick={onClose}
+            className="cancel-btn"
             style={{
               backgroundColor: "#D4A373",
               color: "#fff",
@@ -198,6 +155,7 @@ function AddNoteModal({
           </button>
           <button
             onClick={onAdd}
+            className="save-btn"
             style={{
               backgroundColor: "#A1866F",
               color: "#fff",
