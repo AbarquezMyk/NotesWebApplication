@@ -2,12 +2,23 @@
    Note Input Wrapper (Sticky)
    ============================= */
 
+   
+.notes-header {
+  display: flex;
+  justify-content: flex-end; /* pushes Settings to the right */
+  align-items: center;
+  padding: 10px 20px; /* adjust padding if needed */
+}
+
+
+
 .notes-container,
 .note-list,
 .zoom-note-content,
 .left-page,
 .right-page {
   overflow-x: hidden; /* prevent horizontal scroll */
+  
 }
 
 .note-input-wrapper.sticky {
@@ -154,6 +165,7 @@
    Note Card
    ============================= */
 .note-card {
+  background-color: pink;
   width: 250px;
   height: 200px;
   border-radius: 12px;

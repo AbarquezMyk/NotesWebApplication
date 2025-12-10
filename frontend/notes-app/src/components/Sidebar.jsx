@@ -38,12 +38,6 @@ function Sidebar({ activePage, setActivePage }) {
 
       <ul className="sidebar-list" style={{ width: "100%" }}>
         <li
-          className={activePage === "Overview" ? "active" : ""}
-          onClick={() => setActivePage("Overview")}
-        >
-          Overview
-        </li>
-        <li
           className={activePage === "Notes" ? "active" : ""}
           onClick={() => setActivePage("Notes")}
         >

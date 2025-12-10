@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import AddNoteModal from "./AddNoteModal";
 import StatusModal from "../StatusModal";
-import SendFundsModal from "./SendFundsModal"; // <-- IMPORT ADDED
+import SendFundsModal from "./SendFundsModal";
 import { FiEdit, FiTrash2, FiX, FiSave, FiArrowLeft } from "react-icons/fi";
 import "./Notes.css";
 import noteCardImg from "../../assets/imgs/notecard.png";
+import Settings from "./Settings";
 
 // -------------------- COLORS ----------------------
 const COLORS = [
@@ -24,7 +25,6 @@ const getColorForCategory = (name) => {
 //                    MAIN NOTES
 // ==================================================
 function Notes({ user }) {
-  // ---------------- STATES ----------------
   const [notes, setNotes] = useState([]);
   const [categories, setCategories] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All");
@@ -44,7 +44,7 @@ function Notes({ user }) {
   const [statusConfirm, setStatusConfirm] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
 
-  const [sendFundsVisible, setSendFundsVisible] = useState(false); // <-- STATE ADDED
+  const [sendFundsVisible, setSendFundsVisible] = useState(false);
 
   const leftPageRef = useRef(null);
   const hiddenRef = useRef(null);
@@ -228,14 +228,26 @@ function Notes({ user }) {
   // ---------------- RENDER ----------------
   return (
     <div className="notes-container">
-      {/* SEARCH BAR */}
-      <div className="search-bar-wrapper">
-        <input
-          type="text"
-          placeholder="Search notes..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      {/* SEARCH BAR + SETTINGS */}
+      <div
+        className="search-settings-wrapper"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "15px"
+        }}
+      >
+        <div className="search-bar-wrapper" style={{ flex: 1 }}>
+          <input
+            type="text"
+            placeholder="Search notes..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
+        <Settings />
       </div>
 
       {/* CATEGORIES */}
