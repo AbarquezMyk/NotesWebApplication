@@ -196,31 +196,114 @@ function Notes({ user }) {
       </div>
 
       <div className="note-list">
-        {filteredNotes.length === 0 ? (
-          <div className="empty">No notes found.</div>
-        ) : (
-          filteredNotes.map((note) => (
-            <div
-              key={note.id}
-              className="note-card"
-  onClick={() => setFocusedNote(note)}
+  {filteredNotes.length === 0 ? (
+    <div className="empty">No notes found.</div>
+  ) : (
+    filteredNotes.map((note) => (
+      <div
+        key={note.id}
+        className="note-card"
+        onClick={() => setFocusedNote(note)}
+        style={{
+          backgroundImage: `url(${noteCardImg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          color: "#ffffff",
+          fontWeight: "600",
+          textShadow: "0 1px 2px rgba(0,0,0,0.4)",
+        }}
+      >
+        <div className="note-folder">All</div>
+
+        {/*  UPDATED NOTE INFO  */}
+        <div className="note-info">
+
+          {/* TITLE  */}
+          <div
   style={{
-    backgroundImage: `url(${noteCardImg})`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    color: "#ffffff",
-    fontWeight: "600",
-    textShadow: "0 1px 2px rgba(0,0,0,0.4)",
-              }}
-            >
-              <div className="note-folder">All</div>
-              <div className="note-info">
-                <div className="note-card-content">{note?.text || ""}</div>
-              </div>
-            </div>
-          ))
-        )}
+    fontSize: "22px",
+    fontWeight: "700",
+    color: "#564934ff", // dark color for readability
+    padding: "8px 12px",
+    borderRadius: "6px 6px 0 0", // rounded top corners only
+    boxShadow: "0 2px 4px rgba(255, 255, 255, 0.2)", // slight depth
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    marginBottom: "8px",
+  }}
+>
+  {note.title || "Untitled Note"}
+</div>
+
+          {/*  PREVIEW  */}
+          <div
+            className="note-card-content"
+            style={{ marginBottom: "10px" }}
+          >
+            {(note.text || "").slice(0, 120)}
+            {note.text?.length > 120 ? "..." : ""}
+          </div>
+
+          {/*  SIGNED + TIMESTAMP ROW  */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              fontSize: "12px",
+              marginTop: "5px",
+            }}
+          >
+            {/* Auto-sign badge */}
+            {note.signed ? (
+              <span
+                style={{
+                  background: "#4CAF50",
+                  padding: "3px 6px",
+                  borderRadius: "4px",
+                  fontSize: "11px",
+                  fontWeight: "700",
+                }}
+              >
+                ✓ Signed
+              </span>
+            ) : (
+              <span
+              style={{
+          background: "rgba(193, 74, 74, 0.15)",
+           color: "#C14A4A",
+          padding: "4px 8px",
+          borderRadius: "12px",
+          fontSize: "11px",
+          fontWeight: "600",
+          border: "1px solid rgba(193,74,74,0.25)",
+          }}
+          >  
+           Unsigned
+            </span>
+            )}
+
+            {/* Timestamp */}
+            <span
+  style={{
+    display: "inline-block",
+    fontSize: "11px",
+    color: "#947044ff",               // muted text color
+    background: "#E0E0E0",       // soft gray capsule
+    padding: "3px 8px",
+    borderRadius: "12px",        // pill shape
+    fontWeight: "500",
+    fontFamily: "monospace",     // gives a “techy / precise” look
+    letterSpacing: "0.5px",
+  }}
+>
+  {new Date(note.timestamp).toLocaleString()}
+</span>
+          </div>
+        </div>
       </div>
+    ))
+  )}
+</div>
 
       {/* FOCUSED NOTE OVERLAY */}
       {focusedNote && (
@@ -266,8 +349,9 @@ function Notes({ user }) {
                       <FiTrash2 size={18} />
                     </button>
 
-                    {/* ⭐ TIP BUTTON ⭐ */}
+                    {/*  TIP BUTTON  */}
                     <button
+                    
                       className="tip-btn"
                       style={{
                         background: "#A1866F",
@@ -283,10 +367,11 @@ function Notes({ user }) {
                         setSendFundsVisible(true);
                       }}
                     >
-                      💸 Tip
+                      Add Tip
                     </button>
                   </>
-                )}
+
+                )}  
               </div>
 
               {/* FIXED JSX BLOCK */}

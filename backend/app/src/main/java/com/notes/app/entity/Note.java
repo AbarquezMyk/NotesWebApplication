@@ -29,7 +29,7 @@ public class Note {
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
-    @JsonIgnoreProperties({"notes"})   // ⭐ prevents lazy loading crash and recursion
+    @JsonIgnoreProperties({"notes"}) 
     private Category category;
 
     // GETTERS & SETTERS
