@@ -2,8 +2,9 @@ package com.notes.app.entity;
 
 import jakarta.persistence.*;
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties({"notes"})   // ⭐ prevents loading notes list
 @Entity
 @Table(name = "categories")
 public class Category {
@@ -14,16 +15,14 @@ public class Category {
 
     private String name;
 
-    // One category can have many notes
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore // Ignore notes when serializing category
     private List<Note> notes;
 
     // Constructors
     public Category() {}
     public Category(String name) { this.name = name; }
 
-    // Getters & setters
+    // GETTERS & SETTERS
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

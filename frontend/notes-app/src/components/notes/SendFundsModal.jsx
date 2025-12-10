@@ -1,41 +1,35 @@
 import React, { useState, useEffect } from "react";
-
-// Import CSL - no explicit WASM loading needed for this version/setup
+import axios from "axios";
 import * as CSL from "@emurgo/cardano-serialization-lib-browser";
 
-function SendFundsModal({ visible, onClose, walletAddress }) {
-  const [receiver, setReceiver] = useState("");
-  const [amount, setAmount] = useState("");
+/**
+ * REQUIRED NEW PROPS:
+ * - noteId (for backend)
+ * - receiverWallet (the author’s wallet address)
+ */
+function SendFundsModal({ visible, onClose, walletAddress, noteId, receiverWallet }) {
+  const [amount, setAmount] = useState("1");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [cslReady, setCslReady] = useState(false);
+  const [confirmation, setConfirmation] = useState(null); // NEW
 
-  // No WASM init needed - CSL is ready after import
   useEffect(() => {
     setCslReady(true);
-    console.log("CSL loaded successfully!");
   }, []);
 
-  // Auto-fill receiver
   useEffect(() => {
-    if (visible && walletAddress) {
-      setReceiver(walletAddress);
+    if (visible) {
       setError("");
+      setConfirmation(null);
     }
-  }, [visible, walletAddress]);
+  }, [visible]);
 
   const handleSend = async () => {
     setError("");
+    setLoading(true);
 
     try {
-      setLoading(true);
-
-      if (!cslReady) {
-        setError("Cardano Serialization Lib not loaded.");
-        setLoading(false);
-        return;
-      }
-
       if (!window.cardano?.lace) {
         setError("Lace Wallet not installed.");
         setLoading(false);
@@ -47,7 +41,7 @@ function SendFundsModal({ visible, onClose, walletAddress }) {
       // Validate receiver
       let receiverAddr;
       try {
-        receiverAddr = CSL.Address.from_bech32(receiver);
+        receiverAddr = CSL.Address.from_bech32(receiverWallet);
       } catch {
         setError("Invalid receiver address.");
         setLoading(false);
@@ -62,18 +56,10 @@ function SendFundsModal({ visible, onClose, walletAddress }) {
       }
 
       // Sender address
-      const usedAddresses = await lace.getUsedAddresses();
-      if (!usedAddresses?.length) {
-        setError("Unable to read your wallet address.");
-        setLoading(false);
-        return;
-      }
+      const used = await lace.getUsedAddresses();
+      const senderHex = used[0];
+      const senderAddr = CSL.Address.from_bytes(Buffer.from(senderHex, "hex"));
 
-      const senderAddr = CSL.Address.from_bytes(
-        Buffer.from(usedAddresses[0], "hex")
-      );
-
-      // UTXOs
       const utxosHex = await lace.getUtxos();
       if (!utxosHex?.length) {
         setError("Your wallet has no ADA.");
@@ -94,41 +80,41 @@ function SendFundsModal({ visible, onClose, walletAddress }) {
         5000
       );
 
-      // Convert ADA → lovelace
       const lovelace = CSL.Value.new(
-        CSL.BigNum.from_str(
-          Math.floor(parseFloat(amount) * 1_000_000).toString()
-        )
+        CSL.BigNum.from_str((parseFloat(amount) * 1_000_000).toString())
       );
 
-      txBuilder.add_output(
-        CSL.TransactionOutput.new(receiverAddr, lovelace)
-      );
+      txBuilder.add_output(CSL.TransactionOutput.new(receiverAddr, lovelace));
 
       utxosHex.forEach((u) => {
-        const utxo = CSL.TransactionUnspentOutput.from_bytes(
-          Buffer.from(u, "hex")
-        );
-        txBuilder.add_input(
-          utxo.output().address(),
-          utxo.input(),
-          utxo.output().amount()
-        );
+        const utxo = CSL.TransactionUnspentOutput.from_bytes(Buffer.from(u, "hex"));
+        txBuilder.add_input(utxo.output().address(), utxo.input(), utxo.output().amount());
       });
 
       txBuilder.add_change_if_needed(senderAddr);
 
-      // Build unsigned tx body
       const txBody = txBuilder.build();
       const txHex = Buffer.from(txBody.to_bytes()).toString("hex");
 
       const signedTx = await lace.signTx(txHex, true);
       const txHash = await lace.submitTx(signedTx);
 
-      alert(`Transaction sent!\nTx Hash:\n${txHash}`);
-      onClose();
+      // SHOW CONFIRMATION MESSAGE (INSTEAD OF alert)
+      setConfirmation({
+        txHash,
+        amount,
+      });
+
+      // CALL BACKEND (required for your task)
+      await axios.post("https://your-backend-url.com/api/tips/send", {
+        noteId,
+        senderWallet: walletAddress,
+        receiverWallet,
+        amount: parseFloat(amount),
+        txHash,
+      });
+
     } catch (err) {
-      console.error(err);
       setError(err.message || "Transaction failed.");
     }
 
@@ -140,32 +126,57 @@ function SendFundsModal({ visible, onClose, walletAddress }) {
   return (
     <div style={styles.backdrop}>
       <div style={styles.modal}>
-        <h2 style={styles.title}>Send ADA</h2>
+        <h2 style={styles.title}>Tip the Author</h2>
 
-        <label style={styles.label}>Receiver Address</label>
-        <input
-          type="text"
-          readOnly
-          value={receiver}
-          style={{ ...styles.input, background: "#eee" }}
-        />
+        {/* Confirmation UI */}
+        {confirmation ? (
+          <div style={{ textAlign: "center", margin: "20px 0" }}>
+            <h3 style={{ color: "#4caf50" }}>Tip Sent Successfully!</h3>
+            <p>You sent <strong>{confirmation.amount} ADA</strong></p>
+            <p style={{ fontSize: "12px", wordBreak: "break-all" }}>
+              Tx Hash: {confirmation.txHash}
+            </p>
 
-        <label style={styles.label}>Amount (ADA)</label>
-        <input
-          type="number"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          style={styles.input}
-        />
+            <button style={styles.sendBtn} onClick={onClose}>
+              Close
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* ADA DROPDOWN */}
+            <label style={styles.label}>Amount (ADA)</label>
+            <select
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              style={styles.input}
+            >
+              <option value="0.5">0.5 ADA</option>
+              <option value="1">1 ADA</option>
+              <option value="2">2 ADA</option>
+              <option value="5">5 ADA</option>
+            </select>
 
-        {error && <div style={styles.error}>{error}</div>}
+            {/* SLIDER */}
+            <input
+              type="range"
+              min="0.5"
+              max="10"
+              step="0.5"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              style={{ width: "100%" }}
+            />
 
-        <div style={styles.buttons}>
-          <button style={styles.closeBtn} onClick={onClose}>Close</button>
-          <button disabled={loading} style={styles.sendBtn} onClick={handleSend}>
-            {loading ? "Sending..." : "Send"}
-          </button>
-        </div>
+            {error && <div style={styles.error}>{error}</div>}
+
+            <div style={styles.buttons}>
+              <button style={styles.closeBtn} onClick={onClose}>Cancel</button>
+              <button disabled={loading} style={styles.sendBtn} onClick={handleSend}>
+                {loading ? "Sending..." : `Send ${amount} ADA`}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

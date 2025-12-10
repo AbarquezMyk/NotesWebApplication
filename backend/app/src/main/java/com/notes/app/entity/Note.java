@@ -25,14 +25,14 @@ public class Note {
     @Column(length = 500)
     private String walletPrivateKey;
 
+    private int tipCount = 0;
+
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
-    @JsonIgnoreProperties("notes")
+    @JsonIgnoreProperties({"notes"})   // ⭐ prevents lazy loading crash and recursion
     private Category category;
 
-    // ===================
-    // GETTERS/SETTERS
-    // ===================
+    // GETTERS & SETTERS
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -54,4 +54,7 @@ public class Note {
 
     public Category getCategory() { return category; }
     public void setCategory(Category category) { this.category = category; }
+
+    public int getTipCount() { return tipCount; }
+    public void setTipCount(int tipCount) { this.tipCount = tipCount; }
 }

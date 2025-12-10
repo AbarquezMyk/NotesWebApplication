@@ -196,7 +196,7 @@ function Notes({ user }) {
     }
   };
 
-  // ---------------- NOTEBOOK PAGE SPLIT ----------------
+  // ---------------- NOTEBOOK SPLIT ----------------
   const splitTextDynamic = (text) => {
     if (!leftPageRef.current || !hiddenRef.current)
       return { left: text, right: "" };
@@ -229,15 +229,12 @@ function Notes({ user }) {
   return (
     <div className="notes-container">
       {/* SEARCH BAR + SETTINGS */}
-      <div
-        className="search-settings-wrapper"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "15px"
-        }}
-      >
+      <div className="search-settings-wrapper" style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: "15px"
+      }}>
         <div className="search-bar-wrapper" style={{ flex: 1 }}>
           <input
             type="text"
@@ -288,9 +285,7 @@ function Notes({ user }) {
               <div
                 className="note-folder"
                 style={{
-                  backgroundColor: getColorForCategory(
-                    note?.category?.name || ""
-                  )
+                  backgroundColor: getColorForCategory(note?.category?.name || "")
                 }}
               >
                 {note?.category?.name || "No Category"}
@@ -309,10 +304,7 @@ function Notes({ user }) {
       {/* FOCUSED NOTE OVERLAY */}
       {focusedNote && (
         <>
-          <div
-            className="overlay-backdrop"
-            onClick={() => setFocusedNote(null)}
-          ></div>
+          <div className="overlay-backdrop" onClick={() => setFocusedNote(null)} />
 
           <div className="note-card-overlay notebook-overlay">
             <button
@@ -326,8 +318,6 @@ function Notes({ user }) {
                 padding: "5px",
                 cursor: "pointer"
               }}
-              onMouseEnter={e => (e.target.style.background = "#8C5E3C")}
-              onMouseLeave={e => (e.target.style.background = "#A1866F")}
             >
               <FiX size={20} />
             </button>
@@ -336,9 +326,7 @@ function Notes({ user }) {
               <div
                 className="zoom-note-folder"
                 style={{
-                  backgroundColor: getColorForCategory(
-                    focusedNote?.category?.name || ""
-                  )
+                  backgroundColor: getColorForCategory(focusedNote?.category?.name || "")
                 }}
               >
                 {focusedNote?.category?.name || "No Category"}
@@ -347,25 +335,16 @@ function Notes({ user }) {
               <div className="zoom-note-actions">
                 {editingNoteId === focusedNote.id ? (
                   <>
-                    <button
-                      className="edit-btn"
-                      onClick={() => handleSaveEdit(focusedNote.id)}
-                    >
+                    <button className="edit-btn" onClick={() => handleSaveEdit(focusedNote.id)}>
                       <FiSave size={18} />
                     </button>
-                    <button
-                      className="back-btn"
-                      onClick={() => setEditingNoteId(null)}
-                    >
+                    <button className="back-btn" onClick={() => setEditingNoteId(null)}>
                       <FiArrowLeft size={18} />
                     </button>
                   </>
                 ) : (
                   <>
-                    <button
-                      className="edit-btn"
-                      onClick={() => handleEdit(focusedNote)}
-                    >
+                    <button className="edit-btn" onClick={() => handleEdit(focusedNote)}>
                       <FiEdit size={18} />
                     </button>
 
@@ -378,10 +357,31 @@ function Notes({ user }) {
                     >
                       <FiTrash2 size={18} />
                     </button>
+
+                    {/* ⭐ TIP BUTTON ⭐ */}
+                    <button
+                      className="tip-btn"
+                      style={{
+                        background: "#A1866F",
+                        color: "#fff",
+                        border: "none",
+                        padding: "6px 10px",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        marginLeft: "8px",
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSendFundsVisible(true);
+                      }}
+                    >
+                      💸 Tip
+                    </button>
                   </>
                 )}
               </div>
 
+              {/* FIXED JSX BLOCK */}
               <div className="zoom-note-content">
                 <div className="left-page" ref={leftPageRef}>
                   {editingNoteId === focusedNote.id ? (
@@ -395,7 +395,11 @@ function Notes({ user }) {
                   )}
                 </div>
 
-                {right && <div className="right-page">{right}</div>}
+                {right && (
+                  <div className="right-page">
+                    {right}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -429,7 +433,9 @@ function Notes({ user }) {
       <SendFundsModal
         visible={sendFundsVisible}
         onClose={() => setSendFundsVisible(false)}
-        walletAddress={focusedNote?.walletAddress}
+        walletAddress={user?.walletAddress || ""}
+        receiverWallet={focusedNote?.walletAddress || ""}
+        noteId={focusedNote?.id}
       />
     </div>
   );
