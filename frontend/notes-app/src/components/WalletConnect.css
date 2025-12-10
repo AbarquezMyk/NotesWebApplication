@@ -1,0 +1,77 @@
+.wallet-card {
+  max-width: 500px;
+  margin: 24px auto;
+  padding: 20px;
+  border: 1px solid var(--secondary-accent);
+  border-radius: 12px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.wallet-title {
+  margin-bottom: 12px;
+  color: var(--accent-color);
+}
+
+.wallet-notice {
+  background: var(--highlight-color);
+  border: 1px solid var(--secondary-accent);
+  color: var(--accent-color);
+  padding: 8px 10px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.wallet-error {
+  background: #fbeaea;
+  border: 1px solid #e0a6a6;
+  color: #8C2F2F;
+  padding: 8px 10px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 8px;
+  transition: background 0.2s;
+}
+.btn-primary:hover {
+  background: var(--accent-color);
+}
+
+.btn-secondary {
+  background: var(--highlight-color);
+  color: var(--text-color);
+  border: 1px solid var(--secondary-accent);
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 8px;
+}
+.btn-secondary:hover {
+  background: var(--secondary-accent);
+  color: #fff;
+}
+
+.center-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; 
+  gap: 20px;
+}
+
+.center-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

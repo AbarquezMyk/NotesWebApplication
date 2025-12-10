@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 // Components
 import Notes from "./components/notes/Notes";
 import Sidebar from "./components/Sidebar";
+import WalletConnect from "./components/WalletConnect";
 
 // CSS
 import "./App.css";
@@ -26,6 +27,8 @@ export default function App() {
               path="/"
               element={<Notes />}
             />
+            {/* New Wallet route */}
+            <Route path="/wallet" element={<WalletConnect />} />
             {/* Any other route → redirect to Notes */}
             <Route
               path="*"
