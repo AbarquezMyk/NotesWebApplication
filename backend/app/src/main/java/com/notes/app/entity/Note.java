@@ -32,6 +32,9 @@ public class Note {
     @JsonIgnoreProperties({"notes"}) 
     private Category category;
 
+    private Boolean signed = false;  // default false
+    private String txId;
+
     // GETTERS & SETTERS
 
     public Long getId() { return id; }
@@ -57,4 +60,10 @@ public class Note {
 
     public int getTipCount() { return tipCount; }
     public void setTipCount(int tipCount) { this.tipCount = tipCount; }
+
+    public Boolean getSigned() { return signed; }
+    public void setSigned(Boolean signed) { this.signed = signed; }
+
+    public String getTxId() { return txId; }
+    public void setTxId(String txId) { this.txId = txId; }
 }

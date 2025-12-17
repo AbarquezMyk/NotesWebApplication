@@ -56,4 +56,40 @@ public class NoteController {
         noteService.deleteNote(id);
         return ResponseEntity.noContent().build();
     }
+
+    // NEW: SIGN NOTE
+    @PostMapping("/{id}/sign")
+    public ResponseEntity<Note> signNote(@PathVariable Long id, @RequestBody SignRequest request) {
+        Note note = noteService.getNoteById(id);
+        if (note == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        note.setSigned(request.isSigned());
+        note.setTxId(request.getTxId());
+        Note updated = noteService.updateNote(id, note);
+        return ResponseEntity.ok(updated);
+    }
+
+    // DTO for sign request
+    public static class SignRequest {
+        private boolean signed;
+        private String txId;
+
+        public boolean isSigned() {
+            return signed;
+        }
+
+        public void setSigned(boolean signed) {
+            this.signed = signed;
+        }
+
+        public String getTxId() {
+            return txId;
+        }
+
+        public void setTxId(String txId) {
+            this.txId = txId;
+        }
+    }
 }

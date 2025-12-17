@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import * as CSL from "@emurgo/cardano-serialization-lib-browser";
-
 /**
  * REQUIRED NEW PROPS:
  * - noteId (for backend)

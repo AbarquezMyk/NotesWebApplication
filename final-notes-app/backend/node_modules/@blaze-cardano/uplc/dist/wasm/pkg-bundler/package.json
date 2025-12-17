@@ -1,0 +1,28 @@
+{
+  "name": "uplc-bundler",
+  "type": "module",
+  "description": "A WebAssembly (wasm) wrapper for the uplc crate",
+  "version": "0.2.0",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mpizenberg/uplc-wasm"
+  },
+  "files": [
+    "uplc_wasm_bg.wasm",
+    "uplc_wasm.js",
+    "uplc_wasm_bg.js",
+    "uplc_wasm.d.ts"
+  ],
+  "main": "uplc_wasm.js",
+  "types": "uplc_wasm.d.ts",
+  "sideEffects": [
+    "./uplc_wasm.js",
+    "./snippets/*"
+  ],
+  "keywords": [
+    "cardano",
+    "wasm",
+    "uplc"
+  ]
+}
